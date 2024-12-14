@@ -10,8 +10,12 @@ const CardItem = ({ imageUrl, footerText, description }) => (
       />
       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-orange-500 bg-opacity-50">
         <div className="text-white text-center">
-          <p className="text-xl font-semibold">{footerText}</p>
-          <p className="text-sm mt-2">{description}</p>
+          <p className="text-sm md:text-lg lg:text-xl font-bold text-[#102640]">
+            {footerText}
+          </p>
+          <p className="text-sm md:text-lg lg:text-xl font-bold mt-2">
+            {description}
+          </p>
         </div>
       </div>
     </CardContent>
@@ -26,26 +30,26 @@ export const TUKS = () => {
     {
       imageUrl:
         "https://images.unsplash.com/photo-1733992030462-7585b182f98b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      footerText: "Card Footer 1",
-      description: "This is the first card description.",
+      footerText: "Politeknik Negeri Pontianak",
+      description: "Kota Pontianak Kalimantan Barat",
     },
     {
       imageUrl:
         "https://images.unsplash.com/photo-1733992030462-7585b182f98b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      footerText: "Card Footer 2",
-      description: "This is the second card description.",
+      footerText: "Politeknik Negeri Pontianak",
+      description: "Kota Pontianak Kalimantan Barat",
     },
     {
       imageUrl:
         "https://images.unsplash.com/photo-1733992030462-7585b182f98b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      footerText: "Card Footer 3",
-      description: "This is the third card description.",
+      footerText: "Politeknik Negeri Pontianak",
+      description: "Kota Pontianak Kalimantan Barat",
     },
   ];
 
   return (
     <section className="py-10">
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {cardData.map((card, index) => (
           <div key={index}>
             <CardItem

@@ -3,12 +3,15 @@ import { NewsData } from "@/components/DetailNews/NewsData";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 
-export const Berita = () => {
+export const BeritaHomepage = () => {
   const navigate = useNavigate();
 
   const handleReadMore = (id) => {
     navigate(`/Berita/${id}`);
   };
+
+  // Only get the first 3 news articles
+  const limitedNewsData = NewsData.slice(0, 3);
 
   return (
     <div className="min-h-screen">
@@ -19,7 +22,7 @@ export const Berita = () => {
         Berita Kegiatan
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-6 md:px-12">
-        {NewsData.map((news) => (
+        {limitedNewsData.map((news) => (
           <div
             key={news.id}
             className="bg-white rounded-xl shadow-xl hover:shadow-2xl transform transition duration-300 hover:scale-105 overflow-hidden"
@@ -50,4 +53,4 @@ export const Berita = () => {
   );
 };
 
-export default Berita;
+export default BeritaHomepage;

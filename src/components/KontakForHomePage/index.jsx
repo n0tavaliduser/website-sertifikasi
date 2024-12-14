@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 
-export const Kontak = () => {
+export const KontakForHomePage = () => {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -118,12 +118,8 @@ export const Kontak = () => {
           </div>
         </div>
       </div>
-
-      <section>
-        <Footer />
-      </section>
     </div>
   );
 };
 
-export default Kontak;
+export default KontakForHomePage;

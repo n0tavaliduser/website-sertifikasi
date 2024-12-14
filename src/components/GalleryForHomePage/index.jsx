@@ -2,7 +2,7 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import React from "react";
 
-export const Gallery = () => {
+export const GalleryForHomePage = () => {
   const imageUrls = [
     "https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image.jpg",
     "https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-1.jpg",
@@ -71,12 +71,8 @@ export const Gallery = () => {
           </div>
         ))}
       </div>
-
-      <section>
-        <Footer />
-      </section>
     </section>
   );
 };
 
-export default Gallery;
+export default GalleryForHomePage;

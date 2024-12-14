@@ -14,7 +14,7 @@ const responsive = {
     slidesToSlide: 1,
   },
   mobile: {
-    breakpoint: { max: 767, min: 464 },
+    breakpoint: { max: 767, min: 364 },
     items: 2,
     slidesToSlide: 1,
   },
@@ -54,21 +54,32 @@ const sliderImageUrl = [
 ];
 const Slider = () => {
   return (
-    <div className="parent container">
+    <div className="lg:parent lg:container mx-auto">
       <Carousel
         responsive={responsive}
         autoPlay={true}
+        autoPlaySpeed={1000}
+        transitionDuration={1000}
         swipeable={true}
         draggable={true}
         showDots={true}
         infinite={true}
         partialVisible={false}
+        arrows={false}
         dotListClass="custom-dot-list-style"
       >
         {sliderImageUrl.map((imageUrl, index) => {
           return (
             <div className="slider" key={index}>
-              <img src={imageUrl.url} alt="movie" />
+              <img
+                src={imageUrl.url}
+                alt="movie"
+                className="w-full h-auto object-cover"
+                style={{
+                  width: "100%", // Ensure the image takes full width of the container
+                  height: "auto", // Maintain aspect ratio
+                }}
+              />
             </div>
           );
         })}

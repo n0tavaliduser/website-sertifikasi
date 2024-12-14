@@ -4,7 +4,7 @@ import { createBrowserRouter } from "react-router-dom";
 import IconLoading from "@/components/Loading";
 import NewsDetail from "@/components/DetailNews";
 
-const { Home, Gallery, Location, Berita, Partnership, Tentang, Skema, Kontak } =
+const { Home, Gallery, Tuks, Berita, Partnership, Tentang, Skema, Kontak } =
   lazily(() => import("@/pages/user"));
 
 const router = createBrowserRouter([
@@ -25,10 +25,10 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/location",
+    path: "/tuks",
     element: (
       <Suspense fallback={<IconLoading />}>
-        <Location />
+        <Tuks />
       </Suspense>
     ),
   },
