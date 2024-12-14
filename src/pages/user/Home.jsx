@@ -11,12 +11,12 @@ import {
 } from "@/components/ui/accordion";
 import StrukturOrganisasi from "@/components/StrukturOrganisasi";
 import DataAsesor from "@/components/DataAsesor";
-import SkemaSertifikasi from "@/components/SkemaSertifikasi";
 import TUKS from "@/components/TUKS";
 import BeritaHomepage from "@/components/DetailNews/NewsForHomepage";
 import Footer from "@/components/Footer";
 import GalleryForHomePage from "@/components/GalleryForHomePage";
 import KontakForHomePage from "@/components/KontakForHomePage";
+import SkemaSertifikasiForHomePage from "@/components/SkemaSertifikasiForHomePage";
 
 export const Home = () => {
   return (
@@ -213,7 +213,7 @@ export const Home = () => {
               Skema Sertifikasi
             </h1>
           </div>
-          <SkemaSertifikasi />
+          <SkemaSertifikasiForHomePage />
         </section>
 
         <section className="lg:container lg:mx-auto">

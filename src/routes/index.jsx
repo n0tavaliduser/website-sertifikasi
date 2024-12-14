@@ -3,6 +3,7 @@ import { lazily } from "react-lazily";
 import { createBrowserRouter } from "react-router-dom";
 import IconLoading from "@/components/Loading";
 import NewsDetail from "@/components/DetailNews";
+import CategoryTable from "@/components/CategoryTable";
 
 const { Home, Gallery, Tuks, Berita, Partnership, Tentang, Skema, Kontak } =
   lazily(() => import("@/pages/user"));
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
         <Skema />
       </Suspense>
     ),
+  },
+  {
+    path: "/category/:category", // Dynamic route for category
+    element: <CategoryTable />, // Display the table for the selected category
   },
   {
     path: "/kontak",
