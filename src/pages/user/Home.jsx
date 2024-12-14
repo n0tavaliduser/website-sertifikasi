@@ -217,6 +217,9 @@ export const Home = () => {
         </section>
 
         <section className="lg:container lg:mx-auto">
+          <h1 className="text-xl md:text-3xl lg:text-5xl text-center font-bold pb-4 md:pb-6 lg:pb-12">
+            Tempat Uji Kompetensi Sewaktu <br /> (TUKS)
+          </h1>
           <TUKS />
           <div className="grid place-content-center place-items-center">
             <Button> Selengkapnya</Button>

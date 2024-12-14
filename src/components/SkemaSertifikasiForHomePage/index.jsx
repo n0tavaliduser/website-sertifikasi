@@ -4,7 +4,7 @@ import CardItem from "@/components/SkemaSertifikasi/index";
 export const SkemaSertifikasiForHomePage = () => {
   return (
     <section>
-      <div className="container mx-auto pb-10 mt-24">
+      <div className="pb-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 place-content-start place-items-center">
           {skemaData.map((item) => (
             <Link
