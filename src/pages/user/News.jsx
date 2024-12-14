@@ -1,5 +1,5 @@
 import React from "react";
-import { newsData } from "@/components/DetailNews/NewsData";
+import { NewsData } from "@/components/DetailNews/NewsData";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 
@@ -7,7 +7,7 @@ export const Berita = () => {
   const navigate = useNavigate();
 
   const handleReadMore = (id) => {
-    navigate(`/berita/${id}`);
+    navigate(`/Berita/${id}`);
   };
 
   return (
@@ -19,7 +19,7 @@ export const Berita = () => {
         Berita Kegiatan
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-5">
-        {newsData.map((news) => (
+        {NewsData.map((news) => (
           <div
             key={news.id}
             className="bg-white rounded-lg shadow-lg overflow-hidden"

@@ -1,4 +1,4 @@
-export const newsData = [
+export const NewsData = [
   {
     id: 1,
     title:

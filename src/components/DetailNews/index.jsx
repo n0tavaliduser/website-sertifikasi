@@ -1,15 +1,15 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { newsData } from "./newsData";
 import Navbar from "../Navbar";
+import { NewsData } from "./NewsData";
 
 const NewsDetail = () => {
   const { id } = useParams(); // Mengambil id dari parameter URL
-  const news = newsData.find((item) => item.id === parseInt(id)); // Cari berita berdasarkan id
+  const news = NewsData.find((item) => item.id === parseInt(id)); // Cari berita berdasarkan id
 
   // Fungsi untuk mendapatkan dua berita acak selain berita yang sedang ditampilkan
   const getRandomBerita = () => {
-    const filteredBerita = newsData.filter((item) => item.id !== parseInt(id)); // Filter berita yang sedang dibaca
+    const filteredBerita = NewsData.filter((item) => item.id !== parseInt(id)); // Filter berita yang sedang dibaca
     const shuffled = filteredBerita.sort(() => 0.5 - Math.random()); // Acak urutan berita
     return shuffled.slice(0, 2); // Ambil dua berita acak
   };

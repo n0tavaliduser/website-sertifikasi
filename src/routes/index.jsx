@@ -33,7 +33,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/Berita",
+    path: "/berita",
     element: (
       <Suspense fallback={<IconLoading />}>
         <Berita />
