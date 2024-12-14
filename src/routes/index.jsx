@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { lazily } from "react-lazily";
 import { createBrowserRouter } from "react-router-dom";
 import IconLoading from "@/components/Loading";
+import NewsDetail from "@/components/DetailNews";
 
 const { Home, Gallery, Location, Berita, Partnership, Tentang, Skema, Kontak } =
   lazily(() => import("@/pages/user"));
@@ -36,6 +37,14 @@ const router = createBrowserRouter([
     element: (
       <Suspense fallback={<IconLoading />}>
         <Berita />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/berita/:id",
+    element: (
+      <Suspense fallback={<IconLoading />}>
+        <NewsDetail />
       </Suspense>
     ),
   },

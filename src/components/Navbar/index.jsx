@@ -5,7 +5,7 @@ export default function Navbar() {
   const [navbarOpen, setNavbarOpen] = useState(false);
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 flex flex-wrap items-center justify-between md:px-12 lg:px-24 py-4 bg-white backdrop-blur-lg shadow-md">
+      <nav className="fixed top-0 left-0 right-0 z-50 flex flex-wrap items-center justify-between md:px-12 lg:px-24 py-4 bg-[#00002F] text-white backdrop-blur-lg shadow-md">
         <div className="container px-4 mx-auto flex flex-wrap items-center justify-between">
           <div className="w-full relative flex justify-between lg:w-auto lg:static lg:block lg:justify-start">
             <NavLink to="/" className="group">
