@@ -74,8 +74,8 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/category/:category", // Dynamic route for category
-    element: <CategoryTable />, // Display the table for the selected category
+    path: "/category/:category",
+    element: <CategoryTable />,
   },
   {
     path: "/kontak",

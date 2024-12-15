@@ -56,26 +56,41 @@ const Graph = () => {
         ref={sectionRef}
         className="container mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 text-center text-white"
       >
-        <div>
-          <p className="text-3xl font-bold text-orange-400">{asesi}+</p>
+        {/* Card 1 */}
+        <div className="transition duration-300 p-4 rounded-lg">
+          <p className="text-3xl font-bold text-orange-400 group-hover:text-white">
+            {asesi}+
+          </p>
           <p className="text-sm">Asesi</p>
         </div>
-        <div>
-          <p className="text-3xl font-bold text-orange-400">{asesor}</p>
+
+        {/* Card 2 */}
+        <div className="transition duration-300 p-4 rounded-lg">
+          <p className="text-3xl font-bold text-orange-400 group-hover:text-white">
+            {asesor}
+          </p>
           <p className="text-sm">Asesor</p>
         </div>
-        <div>
-          <p className="text-3xl font-bold text-orange-400">{tuk}+</p>
+
+        {/* Card 3 */}
+        <div className="transition duration-300 p-4 rounded-lg">
+          <p className="text-3xl font-bold text-orange-400 group-hover:text-white">
+            {tuk}+
+          </p>
           <p className="text-sm">TUK</p>
         </div>
-        <div>
-          <p className="text-3xl font-bold text-orange-400">
+
+        {/* Card 4 */}
+        <div className="transition duration-300 p-4 rounded-lg">
+          <p className="text-3xl font-bold text-orange-400 group-hover:text-white">
             {tingkatKesuksesan}%
           </p>
           <p className="text-sm">Tingkat Kesuksesan</p>
         </div>
-        <div>
-          <p className="text-3xl font-bold text-orange-400">
+
+        {/* Card 5 */}
+        <div className="transition duration-300 p-4 rounded-lg">
+          <p className="text-3xl font-bold text-orange-400 group-hover:text-white">
             {tahunPengalaman}+
           </p>
           <p className="text-sm">Tahun Pengalaman</p>
