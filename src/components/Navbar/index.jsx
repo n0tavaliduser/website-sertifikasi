@@ -111,6 +111,13 @@ export default function Navbar() {
                   </div>
                 </div>
               </NavLink>
+              <NavLink to="../auth/login" className="">
+                <div className="px-3 py-2 inline-block lg:flex items-center text-md font-semibold leading-snug">
+                  <div className="ml-2 mt-1 flex items-center lg:hover:underline">
+                    Login
+                  </div>
+                </div>
+              </NavLink>
             </ul>
           </div>
         </div>

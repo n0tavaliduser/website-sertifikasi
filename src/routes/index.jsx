@@ -4,6 +4,7 @@ import { createBrowserRouter } from "react-router-dom";
 import IconLoading from "@/components/Loading";
 import NewsDetail from "@/components/DetailNews";
 import CategoryTable from "@/components/CategoryTable";
+import AuthLogin from "@/pages/user/Auth.Login";
 
 const { Home, Gallery, Tuks, Berita, Partnership, Tentang, Skema, Kontak } =
   lazily(() => import("@/pages/user"));
@@ -82,6 +83,14 @@ const router = createBrowserRouter([
     element: (
       <Suspense fallback={<IconLoading />}>
         <Kontak />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/auth/login",
+    element: (
+      <Suspense fallback={<IconLoading />}>
+        <AuthLogin />
       </Suspense>
     ),
   },

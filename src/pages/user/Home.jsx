@@ -17,6 +17,7 @@ import Footer from "@/components/Footer";
 import GalleryForHomePage from "@/components/GalleryForHomePage";
 import KontakForHomePage from "@/components/KontakForHomePage";
 import SkemaSertifikasiForHomePage from "@/components/SkemaSertifikasiForHomePage";
+import { Link } from "react-router-dom";
 
 export const Home = () => {
   return (
@@ -222,7 +223,9 @@ export const Home = () => {
           </h1>
           <TUKS />
           <div className="grid place-content-center place-items-center">
-            <Button> Selengkapnya</Button>
+            <Link to="/tuks">
+              <Button> Selengkapnya</Button>
+            </Link>
           </div>
         </section>
 
