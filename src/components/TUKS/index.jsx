@@ -1,6 +1,27 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import Modal from "@/components/Modal"; // Reusable Modal Component
+import Modal from "@/components/Modal";
+import { useLocation } from "react-router-dom";
+
+// Import images
+import BPKH from "@/assets/TUKS/BPKH.jpg";
+import P2KPTK2JAKARTA from "@/assets/TUKS/P2KPTK2JAKARTA.jpeg";
+import Balai_Besar_Keramik from "@/assets/TUKS/Balai Besar Keramik.jpeg";
+import Piksi_Megatama_Bandung from "@/assets/TUKS/Piksi Megatama Bandung.jpeg";
+import Bexpert_Indoprima from "@/assets/TUKS/Bexpert Indoprima.png";
+import Politeknik_Negeri_Pontianak from "@/assets/TUKS/Politeknik Negeri Pontianak.jpg";
+import California_Hotel_Bandung from "@/assets/TUKS/California Hotel Bandung.jpg";
+import SMKN_1_TASIK from "@/assets/TUKS/SMKN 1 TASIK.jpg";
+import Graha_Kadin_Bandung from "@/assets/TUKS/Graha Kadin Bandung.jpg";
+import SMKS_PGRI_31_Legok from "@/assets/TUKS/SMKS PGRI 31 Legok Kab. Tangerang.webp";
+import Grand_Tebu_Hotel_Bandung from "@/assets/TUKS/Grand Tebu Hotel Bandung.webp";
+import ST3_Bandung from "@/assets/TUKS/ST3 Bandung.jpg";
+import Hotel_Cordela from "@/assets/TUKS/Hotel Cordela.jpeg";
+import STIE_Ekuitas_Bandung from "@/assets/TUKS/STIE Ekuitas Bandung.jpg";
+import IDE_LPKIA from "@/assets/TUKS/IDE LPKIA.jpg";
+import Setwan_jabar from "@/assets/TUKS/Setwan jabar.jpg";
+import LPK_Pelita_Cahaya_Bangsa from "@/assets/TUKS/LPK Pelita Cahaya Bangsa.png";
+import TIRTA_GANGGA from "@/assets/TUKS/TIRTA GANGGA.jpg";
 
 const CardItem = ({
   imageUrl,
@@ -11,7 +32,7 @@ const CardItem = ({
   onClick,
 }) => (
   <Card
-    onClick={onClick} // Trigger the modal open event
+    onClick={onClick}
     className="relative group overflow-hidden shadow-lg rounded-lg bg-white transition-all duration-300 ease-in-out hover:scale-105 cursor-pointer"
   >
     <CardContent className="relative p-0">
@@ -46,33 +67,139 @@ const CardItem = ({
 export const TUKS = () => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const location = useLocation(); // Get current location
 
   const cardData = [
     {
-      imageUrl:
-        "https://images.unsplash.com/photo-1733992030462-7585b182f98b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      imageUrl: BPKH,
+      namaTUKS: "BPKH",
+      jenisTUKS: "Sewaktu",
+      alamat: "Jakarta, Indonesia",
+      noTelp: "081234567890",
+    },
+    {
+      imageUrl: P2KPTK2JAKARTA,
+      namaTUKS: "P2KPTK2 Jakarta",
+      jenisTUKS: "Sewaktu",
+      alamat: "Jakarta, Indonesia",
+      noTelp: "081234567890",
+    },
+    {
+      imageUrl: Balai_Besar_Keramik,
+      namaTUKS: "Balai Besar Keramik",
+      jenisTUKS: "Sewaktu",
+      alamat: "Bandung, Indonesia",
+      noTelp: "081234567890",
+    },
+    {
+      imageUrl: Piksi_Megatama_Bandung,
+      namaTUKS: "Piksi Megatama Bandung",
+      jenisTUKS: "Sewaktu",
+      alamat: "Bandung, Indonesia",
+      noTelp: "081234567890",
+    },
+    {
+      imageUrl: Bexpert_Indoprima,
+      namaTUKS: "Bexpert Indoprima",
+      jenisTUKS: "Sewaktu",
+      alamat: "Jakarta, Indonesia",
+      noTelp: "081234567890",
+    },
+    {
+      imageUrl: Politeknik_Negeri_Pontianak,
       namaTUKS: "Politeknik Negeri Pontianak",
       jenisTUKS: "Sewaktu",
-      alamat: "Kota Pontianak Kalimantan Barat",
-      noTelp: "0823154892348",
+      alamat: "Pontianak, Kalimantan Barat",
+      noTelp: "081234567890",
     },
     {
-      imageUrl:
-        "https://images.unsplash.com/photo-1733992030462-7585b182f98b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      namaTUKS: "Politeknik Negeri Jakarta",
+      imageUrl: California_Hotel_Bandung,
+      namaTUKS: "California Hotel Bandung",
       jenisTUKS: "Sewaktu",
-      alamat: "Kota Jakarta Kalimantan Barat",
-      noTelp: "0823154892348",
+      alamat: "Bandung, Indonesia",
+      noTelp: "081234567890",
     },
     {
-      imageUrl:
-        "https://images.unsplash.com/photo-1733992030462-7585b182f98b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      namaTUKS: "Politeknik Negeri Bandung",
+      imageUrl: SMKN_1_TASIK,
+      namaTUKS: "SMKN 1 TASIK",
       jenisTUKS: "Sewaktu",
-      alamat: "Kota Bandung Kalimantan Barat",
-      noTelp: "0823154892348",
+      alamat: "Tasikmalaya, Indonesia",
+      noTelp: "081234567890",
+    },
+    {
+      imageUrl: Graha_Kadin_Bandung,
+      namaTUKS: "Graha Kadin Bandung",
+      jenisTUKS: "Sewaktu",
+      alamat: "Bandung, Indonesia",
+      noTelp: "081234567890",
+    },
+    {
+      imageUrl: SMKS_PGRI_31_Legok,
+      namaTUKS: "SMKS PGRI 31 Legok Kab. Tangerang",
+      jenisTUKS: "Sewaktu",
+      alamat: "Tangerang, Indonesia",
+      noTelp: "081234567890",
+    },
+    {
+      imageUrl: Grand_Tebu_Hotel_Bandung,
+      namaTUKS: "Grand Tebu Hotel Bandung",
+      jenisTUKS: "Sewaktu",
+      alamat: "Bandung, Indonesia",
+      noTelp: "081234567890",
+    },
+    {
+      imageUrl: ST3_Bandung,
+      namaTUKS: "ST3 Bandung",
+      jenisTUKS: "Sewaktu",
+      alamat: "Bandung, Indonesia",
+      noTelp: "081234567890",
+    },
+    {
+      imageUrl: Hotel_Cordela,
+      namaTUKS: "Hotel Cordela",
+      jenisTUKS: "Sewaktu",
+      alamat: "Bandung, Indonesia",
+      noTelp: "081234567890",
+    },
+    {
+      imageUrl: STIE_Ekuitas_Bandung,
+      namaTUKS: "STIE Ekuitas Bandung",
+      jenisTUKS: "Sewaktu",
+      alamat: "Bandung, Indonesia",
+      noTelp: "081234567890",
+    },
+    {
+      imageUrl: IDE_LPKIA,
+      namaTUKS: "IDE LPKIA",
+      jenisTUKS: "Sewaktu",
+      alamat: "Bandung, Indonesia",
+      noTelp: "081234567890",
+    },
+    {
+      imageUrl: Setwan_jabar,
+      namaTUKS: "Setwan Jabar",
+      jenisTUKS: "Sewaktu",
+      alamat: "Bandung, Indonesia",
+      noTelp: "081234567890",
+    },
+    {
+      imageUrl: LPK_Pelita_Cahaya_Bangsa,
+      namaTUKS: "LPK Pelita Cahaya Bangsa",
+      jenisTUKS: "Sewaktu",
+      alamat: "Bandung, Indonesia",
+      noTelp: "081234567890",
+    },
+    {
+      imageUrl: TIRTA_GANGGA,
+      namaTUKS: "TIRTA GANGGA",
+      jenisTUKS: "Sewaktu",
+      alamat: "Bali, Indonesia",
+      noTelp: "081234567890",
     },
   ];
+
+  const isTuksPage = location.pathname === "/";
+  const displayedCards = isTuksPage ? cardData.slice(0, 3) : cardData;
 
   const openModal = (card) => {
     setSelectedCard(card);
@@ -87,7 +214,7 @@ export const TUKS = () => {
   return (
     <section className="py-10">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cardData.map((card, index) => (
+        {displayedCards.map((card, index) => (
           <div key={index}>
             <CardItem
               imageUrl={card.imageUrl}

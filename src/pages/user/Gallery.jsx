@@ -2,20 +2,36 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import React from "react";
 
+// Image imports
+import IMG_20241209_WA0056 from "@/assets/galeri/IMG-20241209-WA0056.jpg";
+import IMG_20241214_WA0001 from "@/assets/galeri/IMG-20241214-WA0001.jpg";
+import IMG_20241214_WA0002 from "@/assets/galeri/IMG-20241214-WA0002.jpg";
+import IMG_20241214_WA0003 from "@/assets/galeri/IMG-20241214-WA0003.jpg";
+import IMG_20241214_WA0004 from "@/assets/galeri/IMG-20241214-WA0004.jpg";
+import IMG_20241214_WA0005 from "@/assets/galeri/IMG-20241214-WA0005.jpg";
+import IMG_20241214_WA0006 from "@/assets/galeri/IMG-20241214-WA0006.jpg";
+import IMG_20241214_WA0007 from "@/assets/galeri/IMG-20241214-WA0007.jpg";
+import IMG_20241214_WA0008 from "@/assets/galeri/IMG-20241214-WA0008.jpg";
+import IMG_20241214_WA0009 from "@/assets/galeri/IMG-20241214-WA0009.jpg";
+import IMG_20241214_WA0010 from "@/assets/galeri/IMG-20241214-WA0010.jpg";
+import IMG_20241214_WA0011 from "@/assets/galeri/IMG-20241214-WA0011.jpg";
+import IMG_20241214_WA0012 from "@/assets/galeri/IMG-20241214-WA0012.jpg";
+
 export const Gallery = () => {
   const imageUrls = [
-    "https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image.jpg",
-    "https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-1.jpg",
-    "https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-2.jpg",
-    "https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-3.jpg",
-    "https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-4.jpg",
-    "https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-5.jpg",
-    "https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-6.jpg",
-    "https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-7.jpg",
-    "https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-8.jpg",
-    "https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-9.jpg",
-    "https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-10.jpg",
-    "https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-11.jpg",
+    IMG_20241209_WA0056,
+    IMG_20241214_WA0001,
+    IMG_20241214_WA0002,
+    IMG_20241214_WA0003,
+    IMG_20241214_WA0004,
+    IMG_20241214_WA0005,
+    IMG_20241214_WA0006,
+    IMG_20241214_WA0007,
+    IMG_20241214_WA0008,
+    IMG_20241214_WA0009,
+    IMG_20241214_WA0010,
+    IMG_20241214_WA0011,
+    IMG_20241214_WA0012,
   ];
 
   // Membagi array menjadi 4 grup gambar (masing-masing 3 gambar)
