@@ -1,13 +1,17 @@
-import { Suspense } from "react";
+import { Suspense, lazy } from "react";
 import { lazily } from "react-lazily";
 import { createBrowserRouter } from "react-router-dom";
 import IconLoading from "@/components/Loading";
 import NewsDetail from "@/components/DetailNews";
 import CategoryTable from "@/components/CategoryTable";
 import AuthLogin from "@/pages/user/Auth.Login";
+import AdminLayout from "@/components/Sidebar/Layout";
 
 const { Home, Gallery, Tuks, Berita, Partnership, Tentang, Skema, Kontak } =
   lazily(() => import("@/pages/user"));
+  const AdminSkema = lazy(() => import("@/pages/admin/AdminSkema"));
+  const AdminGalery = lazy(() => import("@/pages/admin/AdminGalery"));
+  const AdminBerita = lazy(() => import("@/pages/admin/AdminBerita"));
 
 const router = createBrowserRouter([
   {
@@ -94,6 +98,38 @@ const router = createBrowserRouter([
       </Suspense>
     ),
   },
+// admin route
+{
+  path: "/admin", // Corrected path
+  element: <AdminLayout />,
+  children: [
+    {
+      path: "skema", // Removed leading slash
+      element: (
+        <Suspense fallback={<IconLoading />}>
+          <AdminSkema />
+        </Suspense>
+      ),
+    },
+    {
+      path: "galeri", // Removed leading slash
+      element: (
+        <Suspense fallback={<IconLoading />}>
+          <AdminGalery />
+        </Suspense>
+      ),
+    },
+    {
+      path: "berita", // Removed leading slash
+      element: (
+        <Suspense fallback={<IconLoading />}>
+          <AdminBerita />
+        </Suspense>
+      ),
+    },
+  ],
+},
+
 ]);
 
 export default router;
