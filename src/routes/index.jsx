@@ -9,9 +9,9 @@ import AdminLayout from "@/components/Sidebar/Layout";
 
 const { Home, Gallery, Tuks, Berita, Partnership, Tentang, Skema, Kontak } =
   lazily(() => import("@/pages/user"));
-  const AdminSkema = lazy(() => import("@/pages/admin/AdminSkema"));
-  const AdminGalery = lazy(() => import("@/pages/admin/AdminGalery"));
-  const AdminBerita = lazy(() => import("@/pages/admin/AdminBerita"));
+const { AdminSkema, AdminGalery, AdminBerita  } =
+  lazily(() => import("@/pages/admin"));
+ 
 
 const router = createBrowserRouter([
   {
