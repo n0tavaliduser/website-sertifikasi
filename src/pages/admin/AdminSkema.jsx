@@ -9,6 +9,17 @@ import Sekretaris from "@/assets/Skema/sekretaris.png";
 import Administrasi from "@/assets/Skema/administrasi.png";
 import Modal from "@/components/Modal";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import SkemaForm from "@/components/Modal/AddSkema";
+import EditSkemaForm from "@/components/Modal/EditSkema";
 const CardItem = ({ imageUrl, title, unit, jenis, onClick }) => (
     <div
       onClick={onClick}
@@ -31,7 +42,7 @@ const CardItem = ({ imageUrl, title, unit, jenis, onClick }) => (
     </div>
   );
   
-  const AdminSkema = () => {
+  export  const AdminSkema = () => {
     const [selectedCard, setSelectedCard] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -80,14 +91,29 @@ const CardItem = ({ imageUrl, title, unit, jenis, onClick }) => (
         {/* Top Section: Search and Total Skema */}
         <div className="w-full max-w-7xl flex justify-between items-center mb-6">
           <div className="flex items-center gap-4">
+          <Dialog>
+      <DialogTrigger asChild>
+     
             <button className="bg-[#06113C]  text-center flex items-center justify-center text-white w-[181px] h-[68px] font-bold rounded-3xl hover:bg-blue-800">
               <Plus /> Tambah Skema
             </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[725px]">
+              <SkemaForm/>
+            </DialogContent>
+            </Dialog>
             <div class="grid relative  ">
               <div class="absolute -bottom-1 blur-[2px] right-15 w-[66px] h-[64px] bg-[#102640] rounded-xl"></div>
+              <Dialog>
+              <DialogTrigger asChild>
               <button class="relative bg-white h-[64px] flex items-center justify-center w-[66px] border border-gray-200 rounded-xl shadow-xl hover:bg-gray-50  focus:ring-offset-2 focus:ring-indigo-500">
                 <img src={Write} alt="" class="" />
               </button>
+              </DialogTrigger>
+            <DialogContent className="sm:max-w-[725px]">
+              <EditSkemaForm/>
+            </DialogContent>
+            </Dialog>
             </div>
             <div class=" rounded-xl shadow w-[248px] h-[97px] flex items-center">
             <div class="flex-shrink-0 ml-3">
