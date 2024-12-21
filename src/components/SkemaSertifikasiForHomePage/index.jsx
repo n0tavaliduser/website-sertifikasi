@@ -14,10 +14,10 @@ export const SkemaSertifikasiForHomePage = () => {
             >
               <CardItem
                 id={item.id}
-                title={item.title}
-                subtitle={item.subtitle}
                 imageUrl={item.imageUrl}
-              />
+                subtitle={item.subtitle}
+                />
+              <h1 className="w-full mt-6 bg-[#102640] flex justify-center items-center p-3 rounded-lg text-white">{item.title}</h1>
             </Link>
           ))}
         </div>

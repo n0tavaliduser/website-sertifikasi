@@ -11,18 +11,20 @@ export const Skema = () => {
       <div className="container mx-auto pb-10 mt-24">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 place-content-start place-items-center">
           {skemaData.map((item) => (
+            <>
             <Link
               to={`/category/${item.title}`}
               key={item.id}
               className="transform transition duration-300 ease-in-out hover:scale-105"
-            >
+              >
               <CardItem
                 id={item.id}
-                title={item.title}
                 subtitle={item.subtitle}
                 imageUrl={item.imageUrl}
-              />
+                />
+            <h1 className="w-full mt-6 bg-[#102640] flex justify-center items-center p-3 rounded-lg text-white">{item.title}</h1>
             </Link>
+                </>
           ))}
         </div>
       </div>

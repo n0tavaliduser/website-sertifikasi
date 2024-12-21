@@ -1,8 +1,16 @@
-import { FileUser, Hourglass, PencilLine, SquarePen, Users2 } from "lucide-react";
+import SearchBar from "@/components/ui/Search";
+import {
+  FileUser,
+  Hourglass,
+  PencilLine,
+  SquarePen,
+  Users2,
+} from "lucide-react";
 import React from "react";
 const taskData = [
   {
     id: 1,
+    image: "j",
     title: "Adoddle",
     status: "Offtrack",
     statusColor: "red",
@@ -52,12 +60,21 @@ const taskData = [
 ];
 export const AdminBerita = () => {
   return (
+    <>
+     <div className="flex items-center justify-end gap-4">
+
+<SearchBar />
+</div>
+<div className="w-full max-w-7xl my-16">
+  <h1 className="text-2xl font-bold text-gray-800">Berita</h1>
+  <p className="text-sm text-gray-500">
+    Lembaga Sertifikasi Profesi Administrasi Perkantoran Indonesia
+  </p>
+</div>
     <div className="grid grid-cols-2 gap-6 p-4">
+      
       {taskData.map((task) => (
-        <div
-          key={task.id}
-          className="bg-none rounded-lg p-4  "
-        >
+        <div key={task.id} className="bg-none rounded-lg p-4  ">
           {/* Header */}
           <div className="flex justify-between items-center mb-1">
             <div className="flex items-center gap-2">
@@ -112,6 +129,7 @@ export const AdminBerita = () => {
         </div>
       ))}
     </div>
+    </>
   );
 };
 

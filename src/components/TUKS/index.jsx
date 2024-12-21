@@ -218,10 +218,10 @@ export const TUKS = () => {
           <div key={index}>
             <CardItem
               imageUrl={card.imageUrl}
-              namaTUKS={card.namaTUKS}
               alamat={card.alamat}
               onClick={() => openModal(card)}
             />
+            <h1 className="w-full mt-6 bg-[#102640] flex justify-center items-center p-3 rounded-lg text-white">{card.namaTUKS}</h1>
           </div>
         ))}
       </div>
