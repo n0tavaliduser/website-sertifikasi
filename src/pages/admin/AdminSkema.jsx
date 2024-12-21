@@ -148,33 +148,7 @@ const CardItem = ({ imageUrl, title, unit, jenis, onClick }) => (
         </div>
   
         {/* Modal */}
-        <Modal
-          isOpen={isModalOpen}
-          onClose={closeModal}
-          title={selectedCard?.title}
-          footer={
-            <button
-              onClick={closeModal}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-            >
-              Close
-            </button>
-          }
-        >
-          {selectedCard && (
-            <div>
-              <p className="text-gray-700 mb-2">
-                <strong>Nama:</strong> {selectedCard.title}
-              </p>
-              <p className="text-gray-700 mb-2">
-                <strong>Unit:</strong> {selectedCard.unit}
-              </p>
-              <p className="text-gray-700 mb-2">
-                <strong>Jenis:</strong> {selectedCard.jenis}
-              </p>
-            </div>
-          )}
-        </Modal>
+       
       </div>
     );
   };
