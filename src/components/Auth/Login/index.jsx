@@ -10,10 +10,13 @@ export const Login = () => {
     e.preventDefault();
 
     if (email === "admin@gmail.com" && password === "passwordadmin") {
+      console.log("Navigating to /admin");
       navigate("/admin");
     } else if (email === "user@gmail.com" && password === "passworduser") {
+      console.log("Navigating to /");
       navigate("/");
     } else {
+      console.error("Invalid credentials");
       alert("Nama pengguna atau kata sandi salah!");
     }
   };
