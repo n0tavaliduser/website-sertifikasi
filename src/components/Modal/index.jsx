@@ -7,16 +7,13 @@ export const Modal = ({ isOpen, onClose, title, children, footer }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="relative p-4 w-full max-w-2xl">
         {/* Modal content */}
-        <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+        <div className="relative bg-orange-400 rounded-lg shadow dark:bg-gray-700">
           {/* Modal header */}
           <div className="flex items-center justify-between p-4 border-b rounded-t dark:border-gray-600">
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
               {title} {/* Dynamic title */}
             </h3>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 dark:hover:bg-gray-600 dark:hover:text-white"
-            >
+            <button onClick={onClose} className="rounded-lg text-sm w-8 h-8">
               <svg
                 className="w-3 h-3"
                 aria-hidden="true"

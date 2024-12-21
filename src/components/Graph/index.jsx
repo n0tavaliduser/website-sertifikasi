@@ -51,64 +51,34 @@ const Graph = () => {
   }, []);
 
   return (
-    <div className="bg-[#102640] ">
+    <div className="bg-[#102640] py-8">
       <div
         ref={sectionRef}
-        className="container mx-auto h-[100px] grid grid-cols-2 md:grid-cols-5 gap-8 text-center text-white"
+        className="lg:container lg:mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 text-center text-white"
       >
-        {/* Card 1 */}
-        <div className="relative group transition-all duration-300 flex flex-col items-center">
-          <div className="group absolute inset-x-0 bottom-0 h-[150px] rounded-t-xl group-hover:bg-orange-400 hover:bg-orange-400  hover:text-white"></div>
-          <div className="relative group z-10 text-center p-4  ">
-            <p className="text-3xl font-bold text-orange-400 group-hover:text-white">
-              {asesi}+
-            </p>
-            <p className="text-sm">Asesi</p>
-          </div>
+        <div>
+          <p className="text-3xl font-bold text-orange-400">{asesi}+</p>
+          <p className="text-sm">Asesi</p>
         </div>
-
-        {/* Card 2 */}
-        <div className="relative group transition-all duration-300 flex flex-col items-center">
-          <div className="group absolute inset-x-0 bottom-0 h-[150px] rounded-t-xl group-hover:bg-orange-400 hover:bg-orange-400  hover:text-white"></div>
-          <div className="relative group z-10 text-center p-4  ">
-            <p className="text-3xl font-bold text-orange-400 group-hover:text-white">
-              {asesor}
-            </p>
-            <p className="text-sm  text-white group-hover:text-white">Asesor</p>
-          </div>
+        <div>
+          <p className="text-3xl font-bold text-orange-400">{asesor}</p>
+          <p className="text-sm">Asesor</p>
         </div>
-
-        {/* Card 3 */}
-        <div className="relative group transition-all duration-300 flex flex-col items-center">
-          <div className="group absolute inset-x-0 bottom-0 h-[150px] rounded-t-xl group-hover:bg-orange-400 hover:bg-orange-400  hover:text-white"></div>
-          <div className="relative group z-10 text-center p-4  ">
-            <p className="text-3xl font-bold text-orange-400 group-hover:text-white">
-              {tuk}+
-            </p>
-            <p className="text-sm">TUK</p>
-          </div>
+        <div>
+          <p className="text-3xl font-bold text-orange-400">{tuk}+</p>
+          <p className="text-sm">TUK</p>
         </div>
-
-        {/* Card 4 */}
-        <div className="relative group transition-all duration-300 flex flex-col items-center">
-          <div className="group absolute inset-x-0 bottom-0 h-[150px] rounded-t-xl group-hover:bg-orange-400 hover:bg-orange-400  hover:text-white"></div>
-          <div className="relative group z-10 text-center p-4  ">
-            <p className="text-3xl font-bold text-orange-400 group-hover:text-white">
-              {tingkatKesuksesan}%
-            </p>
-            <p className="text-sm">Tingkat Kesuksesan</p>
-          </div>
+        <div>
+          <p className="text-3xl font-bold text-orange-400">
+            {tingkatKesuksesan}%
+          </p>
+          <p className="text-sm">Tingkat Kesuksesan</p>
         </div>
-
-        {/* Card 5 */}
-        <div className="relative group transition-all duration-300 flex flex-col items-center">
-          <div className="group absolute inset-x-0 bottom-0 h-[150px] rounded-t-xl group-hover:bg-orange-400 hover:bg-orange-400  hover:text-white"></div>
-          <div className="relative group z-10 text-center p-4  ">
-            <p className="text-3xl font-bold text-orange-400 group-hover:text-white">
-              {tahunPengalaman}+
-            </p>
-            <p className="text-sm">Tahun Pengalaman</p>
-          </div>
+        <div>
+          <p className="text-3xl font-bold text-orange-400">
+            {tahunPengalaman}+
+          </p>
+          <p className="text-sm">Tahun Pengalaman</p>
         </div>
       </div>
     </div>

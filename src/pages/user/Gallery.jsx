@@ -45,7 +45,24 @@ export const Gallery = () => {
   return (
     <section>
       <Navbar />
-      <div className="pb-6 pt-24">
+      <div className="bg-[#F6F3F3] flex justify-center items-start mt-20 py-6">
+        <div className="lg:container lg:mx-auto">
+          {/* Breadcrumb */}
+          <nav className="text-sm text-gray-5002">
+            <span className="hover:underline cursor-pointer">Beranda</span>
+            <span className="mx-2 text-gray-400">›</span>
+            <span className="font-bold">Galeri</span>
+          </nav>
+
+          <div className="bg-[#F6F3F3] py-4 shadow-sm">
+            <h1 className="text-2xl font-bold">Galeri</h1>
+            <p className="text-gray-600 mt-2">
+              Galeri Kegiatan Lembaga Sertifikasi Profesi
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="pb-6 pt-10">
         <h1 className="text-xl md:text-3xl lg:text-5xl text-center font-bold">
           Galeri Kegiatan
         </h1>
@@ -72,7 +89,7 @@ export const Gallery = () => {
           </h2>
         </div>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-8 mx-2 md:mx-4 lg:container lg:mx-auto">
         {chunkedImages.map((group, index) => (
           <div key={index} className="grid gap-4">
             {group.map((url, idx) => (

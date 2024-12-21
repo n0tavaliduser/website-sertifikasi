@@ -221,29 +221,32 @@ export const TUKS = () => {
               alamat={card.alamat}
               onClick={() => openModal(card)}
             />
-            <h1 className="w-full mt-6 bg-[#102640] flex justify-center items-center p-3 rounded-lg text-white">{card.namaTUKS}</h1>
+            <h1 className="w-full mt-6 bg-[#102640] flex justify-center items-center p-3 rounded-lg text-white">
+              {card.namaTUKS}
+            </h1>
           </div>
         ))}
       </div>
 
       {/* Reusable Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        title={selectedCard?.footerText}
-        footer={
-          <button
-            onClick={closeModal}
-            className="text-white bg-red-500 hover:bg-red-600 rounded-lg px-4 py-2"
-          >
-            Close
-          </button>
-        }
-      >
-        <p className="text-gray-700 text-lg">{selectedCard?.namaTUKS}</p>
-        <p className="text-gray-700 text-lg">{selectedCard?.jenisTUKS}</p>
-        <p className="text-gray-700 text-lg">{selectedCard?.alamat}</p>
-        <p className="text-gray-700 text-lg">{selectedCard?.noTelp}</p>
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <div className="grid place-content-center place-items-start">
+          <h1 className="text-black font-bold text-lg">
+            Lihat Detail Uji Kompetensi
+          </h1>
+          <p className="text-lg">
+            Nama TUKS <span className="ml-4">: {selectedCard?.namaTUKS}</span>
+          </p>
+          <p className="text-lg">
+            Jenis TUKS <span className="ml-6">: {selectedCard?.jenisTUKS}</span>
+          </p>
+          <p className="text-lg">
+            Alamat<span className="p-14">: {selectedCard?.alamat}</span>
+          </p>
+          <p className="text-lg">
+            No Telepon <span className="pl-4">: {selectedCard?.noTelp}</span>
+          </p>
+        </div>
       </Modal>
     </section>
   );

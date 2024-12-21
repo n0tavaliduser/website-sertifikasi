@@ -1,21 +1,40 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    if (email === "admin@gmail.com" && password === "passwordadmin") {
+      navigate("/admin");
+    } else if (email === "user@gmail.com" && password === "passworduser") {
+      navigate("/");
+    } else {
+      alert("Nama pengguna atau kata sandi salah!");
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-800 bg-opacity-50">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-center text-2xl font-semibold mb-6">
           Masuk dengan akun anda
         </h2>
-        <form>
+        <form onSubmit={handleLogin}>
           <div className="mb-4">
             <label className="block mb-2 text-gray-600">
               Nama pengguna atau email
             </label>
             <input
-              type="email"
+              type="text"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
               placeholder="Nama pengguna atau email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="mb-4">
@@ -24,6 +43,8 @@ export const Login = () => {
               type="password"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
               placeholder="Kata sandi"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <div className="flex justify-between items-center mb-6">

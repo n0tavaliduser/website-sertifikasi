@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table"; // Import table components
 import Navbar from "../Navbar";
 import Footer from "../Footer";
+import { Button } from "../ui/button";
 
 const CategoryTable = () => {
   const { category } = useParams(); // Get the category from the URL parameter
@@ -35,6 +36,23 @@ const CategoryTable = () => {
   return (
     <section>
       <Navbar />
+      <div className="bg-[#F6F3F3] flex justify-center items-start mt-20 py-6">
+        <div className="container mx-auto">
+          {/* Breadcrumb */}
+          <nav className="text-sm text-gray-5002">
+            <span className="hover:underline cursor-pointer">Beranda</span>
+            <span className="mx-2 text-gray-400">›</span>
+            <span className="font-bold">Skema</span>
+          </nav>
+
+          <div className="bg-[#F6F3F3] py-4 shadow-sm">
+            <h1 className="text-2xl font-bold">Skema Sertifikasi</h1>
+            <p className="text-gray-600 mt-2">
+              Lembaga Sertifikasi Profesi Administrasi Perkantoran Indonesia
+            </p>
+          </div>
+        </div>
+      </div>
       <div className="container mx-auto py-10 px-6">
         <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
           {category} Data
@@ -52,9 +70,9 @@ const CategoryTable = () => {
             <TableHeader>
               <TableRow className="bg-[#102640] text-white">
                 <TableHead className="px-4 py-3 w-[120px]">ID</TableHead>
-                <TableHead className="px-4 py-3">Title</TableHead>
+                <TableHead className="px-4 py-3">Kode Unit</TableHead>
                 <TableHead className="px-4 py-3 text-center">
-                  Subtitle
+                  Nama Unit Kompetensi
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -83,6 +101,13 @@ const CategoryTable = () => {
           </Table>
         </div>
       </div>
+
+      <section className="container mx-auto">
+        <div className="px-6 pb-4">
+          <h1 className="mb-2">Unduh Panduan</h1>
+          <Button className="rounded-2xl">Unduh File</Button>
+        </div>
+      </section>
       <Footer />
     </section>
   );

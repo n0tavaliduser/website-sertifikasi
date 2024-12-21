@@ -61,35 +61,36 @@ export const AdminGalery = () => {
             </p>
           </div>
           <button className="bg-[#06113C] mr-12 text-center flex items-center justify-center text-white w-[181px] h-[68px] font-bold rounded-3xl hover:bg-blue-800">
-            <Plus /> Tambah Skema
+            <Plus /> Tambah Galeri
           </button>
         </div>
       </div>
-      <ScrollArea className="h-[600px] p-4"> {/* Atur tinggi area scroll */}
-  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-    {chunkedImages.map((group, groupIndex) => (
-      <div key={groupIndex} className="grid gap-2">
-        {group.map((url, idx) => (
-          <div key={idx} className="relative m-2">
-            {/* Tombol X */}
-            <button
-              onClick={() => handleDelete(groupIndex * chunkSize + idx)}
-              className="absolute -top-2 -right-2 z-10 border-[1px] border-black bg-none rounded-full p-1 shadow-md hover:bg-gray-100"
-            >
-              <X size={16} className="text-black" />
-            </button>
-            <img
-              className="h-auto max-w-full rounded-lg"
-              src={url}
-              alt={`Image ${idx}`}
-            />
-          </div>
-        ))}
-      </div>
-    ))}
-  </div>
-</ScrollArea>
-
+      <ScrollArea className="h-[600px] p-4">
+        {" "}
+        {/* Atur tinggi area scroll */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          {chunkedImages.map((group, groupIndex) => (
+            <div key={groupIndex} className="grid gap-2">
+              {group.map((url, idx) => (
+                <div key={idx} className="relative m-2">
+                  {/* Tombol X */}
+                  <button
+                    onClick={() => handleDelete(groupIndex * chunkSize + idx)}
+                    className="absolute -top-2 -right-2 z-10 border-[1px] border-black bg-none rounded-full p-1 shadow-md hover:bg-gray-100"
+                  >
+                    <X size={16} className="text-black" />
+                  </button>
+                  <img
+                    className="h-auto max-w-full rounded-lg"
+                    src={url}
+                    alt={`Image ${idx}`}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
     </section>
   );
 };

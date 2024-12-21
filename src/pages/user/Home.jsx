@@ -22,7 +22,7 @@ import { Link } from "react-router-dom";
 export const Home = () => {
   return (
     <section>
-      <div className="md:container mx-auto md:mt-12 px-6 md:px-4 lg:px-0">
+      <div className="md:container lg:mx-auto md:mt-12 md:px-4 lg:px-0">
         <Navbar />
         <section className="h-screen grid grid-cols-1 md:grid-cols-2 place-content-center place-items-center">
           <div className="mt-6 mb-12 md:mb-0 hidden md:grid">
@@ -81,7 +81,7 @@ export const Home = () => {
           <Graph />
         </section>
 
-        <section className="py-12">
+        <section className="lg:py-12 py-6">
           <div className="container mx-auto">
             <h1 className="text-xl md:text-3xl lg:text-5xl text-center font-bold">
               Partnership
@@ -95,7 +95,7 @@ export const Home = () => {
           </div>
         </section>
 
-        <section className="py-12">
+        <section className="lg:py-12 py-6 mx-4">
           <div className="pb-6">
             <h1 className="text-xl md:text-3xl lg:text-5xl text-center font-bold">
               Tentang
@@ -217,7 +217,7 @@ export const Home = () => {
           <SkemaSertifikasiForHomePage />
         </section>
 
-        <section className="lg:container lg:mx-auto">
+        <section className="lg:container lg:mx-auto mx-4">
           <h1 className="text-xl md:text-3xl lg:text-5xl text-center font-bold pb-4 md:pb-6 lg:pb-12">
             Tempat Uji Kompetensi Sewaktu <br /> (TUKS)
           </h1>
@@ -229,7 +229,7 @@ export const Home = () => {
           </div>
         </section>
 
-        <section className="lg:container lg:mx-auto md:py-6 lg:py-12">
+        <section className="lg:container lg:mx-auto mx-4 md:py-6 lg:py-12">
           <div></div>
           <GalleryForHomePage />
         </section>
