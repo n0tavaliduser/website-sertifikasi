@@ -68,7 +68,7 @@ export const AdminBerita = () => {
 <div className="w-full max-w-7xl my-16">
   <h1 className="text-2xl font-bold text-gray-800">Berita</h1>
   <p className="text-sm text-gray-500">
-    Lembaga Sertifikasi Profesi Administrasi Perkantoran Indonesia
+  Lembaga Sertifikasi Profesi Administrasi Perkantoran Indonesia
   </p>
 </div>
     <div className="grid grid-cols-2 gap-6 p-4">

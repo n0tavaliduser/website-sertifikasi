@@ -58,19 +58,19 @@ const Graph = () => {
       >
         {/* Card 1 */}
         <div className="relative group transition-all duration-300 flex flex-col items-center">
-          <div className="group absolute inset-x-0 bottom-0 h-[150px] rounded-t-xl hover:bg-orange-400  hover:text-white"></div>
-          <div className="relative z-10 text-center p-4  ">
+          <div className="group absolute inset-x-0 bottom-0 h-[150px] rounded-t-xl group-hover:bg-orange-400 hover:bg-orange-400  hover:text-white"></div>
+          <div className="relative group z-10 text-center p-4  ">
             <p className="text-3xl font-bold text-orange-400 group-hover:text-white">
-            {asesi}+
-          </p>
-          <p className="text-sm">Asesi</p>
+              {asesi}+
+            </p>
+            <p className="text-sm">Asesi</p>
           </div>
-          </div>
+        </div>
 
         {/* Card 2 */}
         <div className="relative group transition-all duration-300 flex flex-col items-center">
-          <div className="group absolute inset-x-0 bottom-0 h-[150px] rounded-t-xl hover:bg-orange-400  hover:text-white"></div>
-          <div className="relative z-10 text-center p-4  ">
+          <div className="group absolute inset-x-0 bottom-0 h-[150px] rounded-t-xl group-hover:bg-orange-400 hover:bg-orange-400  hover:text-white"></div>
+          <div className="relative group z-10 text-center p-4  ">
             <p className="text-3xl font-bold text-orange-400 group-hover:text-white">
               {asesor}
             </p>
@@ -80,36 +80,36 @@ const Graph = () => {
 
         {/* Card 3 */}
         <div className="relative group transition-all duration-300 flex flex-col items-center">
-          <div className="group absolute inset-x-0 bottom-0 h-[150px] rounded-t-xl hover:bg-orange-400  hover:text-white"></div>
-          <div className="relative z-10 text-center p-4  ">
+          <div className="group absolute inset-x-0 bottom-0 h-[150px] rounded-t-xl group-hover:bg-orange-400 hover:bg-orange-400  hover:text-white"></div>
+          <div className="relative group z-10 text-center p-4  ">
             <p className="text-3xl font-bold text-orange-400 group-hover:text-white">
-            {tuk}+
-          </p>
-          <p className="text-sm">TUK</p>
+              {tuk}+
+            </p>
+            <p className="text-sm">TUK</p>
           </div>
-          </div>
+        </div>
 
         {/* Card 4 */}
         <div className="relative group transition-all duration-300 flex flex-col items-center">
-          <div className="group absolute inset-x-0 bottom-0 h-[150px] rounded-t-xl hover:bg-orange-400  hover:text-white"></div>
-          <div className="relative z-10 text-center p-4  ">
+          <div className="group absolute inset-x-0 bottom-0 h-[150px] rounded-t-xl group-hover:bg-orange-400 hover:bg-orange-400  hover:text-white"></div>
+          <div className="relative group z-10 text-center p-4  ">
             <p className="text-3xl font-bold text-orange-400 group-hover:text-white">
-            {tingkatKesuksesan}%
-          </p>
-          <p className="text-sm">Tingkat Kesuksesan</p>
+              {tingkatKesuksesan}%
+            </p>
+            <p className="text-sm">Tingkat Kesuksesan</p>
           </div>
-          </div>
+        </div>
 
         {/* Card 5 */}
         <div className="relative group transition-all duration-300 flex flex-col items-center">
-          <div className="group absolute inset-x-0 bottom-0 h-[150px] rounded-t-xl hover:bg-orange-400  hover:text-white"></div>
-          <div className="relative z-10 text-center p-4  ">
+          <div className="group absolute inset-x-0 bottom-0 h-[150px] rounded-t-xl group-hover:bg-orange-400 hover:bg-orange-400  hover:text-white"></div>
+          <div className="relative group z-10 text-center p-4  ">
             <p className="text-3xl font-bold text-orange-400 group-hover:text-white">
-            {tahunPengalaman}+
-          </p>
-          <p className="text-sm">Tahun Pengalaman</p>
+              {tahunPengalaman}+
+            </p>
+            <p className="text-sm">Tahun Pengalaman</p>
           </div>
-          </div>
+        </div>
       </div>
     </div>
   );
