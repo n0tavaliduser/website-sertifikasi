@@ -52,10 +52,7 @@ const Graph = () => {
 
   return (
     <div className="bg-[#102640] py-8">
-      <div
-        ref={sectionRef}
-        className="lg:container lg:mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 text-center text-white"
-      >
+      <div ref={sectionRef} className="lg:container lg:mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 text-center text-white">
         <div>
           <p className="text-3xl font-bold text-orange-400">{asesi}+</p>
           <p className="text-sm">Asesi</p>
@@ -69,15 +66,11 @@ const Graph = () => {
           <p className="text-sm">TUK</p>
         </div>
         <div>
-          <p className="text-3xl font-bold text-orange-400">
-            {tingkatKesuksesan}%
-          </p>
+          <p className="text-3xl font-bold text-orange-400">{tingkatKesuksesan}%</p>
           <p className="text-sm">Tingkat Kesuksesan</p>
         </div>
         <div>
-          <p className="text-3xl font-bold text-orange-400">
-            {tahunPengalaman}+
-          </p>
+          <p className="text-3xl font-bold text-orange-400">{tahunPengalaman}+</p>
           <p className="text-sm">Tahun Pengalaman</p>
         </div>
       </div>

@@ -1,41 +1,43 @@
 import React from "react";
+import Pengurus from "@/assets/Organisasi/Pengurus.jpg";
 
 export const StrukturOrganisasi = () => {
   const members = [
     {
-      name: "Graha Kadin Kota Bandung",
-      role: "Dewan Pengarah",
-      image: "https://via.placeholder.com/100",
+      name: "Dewan Pengarah",
+      role: "",
+      image: Pengurus,
     },
     {
-      name: "Siapaya ?",
-      role: "Dewan Pengarah",
-      image: "https://via.placeholder.com/100",
+      name: "Ir. Agus Sumeru",
+      role: "Komite skema",
+      image: Pengurus,
     },
     {
-      name: "Mohamad Ilyas",
-      role: "MET.000.0003627.2013\nDirektur",
-      image: "https://via.placeholder.com/100",
+      name: "Mohamad Ilyas S.T.,M.M",
+      role: "Direktur",
+      image: Pengurus,
     },
     {
-      name: "Agus Sumeru",
-      role: "Manajer Administrasi dan Keuangan",
-      image: "https://via.placeholder.com/100",
-    },
-    {
-      name: "Dedi Nurdadi",
+      name: "Ir. Syahrizal Mustafa  ",
       role: "Manajer Sertifikasi",
-      image: "https://via.placeholder.com/100",
+      image: Pengurus,
     },
     {
-      name: "Dedi Nurdadi",
-      role: "Manajer Manajemen Mutu",
-      image: "https://via.placeholder.com/100",
+      name: "Ir. Agus Sumeru",
+      role: "Manajer Administrasi dan Keuangan",
+      image: Pengurus,
     },
+    {
+      name: "Ir. Dedi Nurdadi",
+      role: "Manajer Manajemen Mutu",
+      image: Pengurus,
+    },
+
     {
       name: "Rahmat",
       role: "Staff Admin",
-      image: "https://via.placeholder.com/100",
+      image: Pengurus,
     },
   ];
 
@@ -44,17 +46,9 @@ export const StrukturOrganisasi = () => {
       {/* Row 1 */}
       <div className="flex justify-center">
         <div className="flex flex-col items-center text-center">
-          <img
-            src={members[0].image}
-            alt={members[0].name}
-            className="w-20 h-20 rounded-full object-cover border-2 border-gray-300"
-          />
-          <h3 className="mt-4 text-sm font-semibold text-gray-800">
-            {members[0].name}
-          </h3>
-          <p className="text-xs text-gray-500 mt-1 whitespace-pre-line">
-            {members[0].role}
-          </p>
+          <img src={members[0].image} alt={members[0].name} className="w-20 h-20 rounded-full object-cover border-2 border-gray-300" />
+          <h3 className="mt-4 text-sm font-semibold text-gray-800">{members[0].name}</h3>
+          <p className="text-xs text-gray-500 mt-1 whitespace-pre-line">{members[0].role}</p>
         </div>
       </div>
 
@@ -62,17 +56,9 @@ export const StrukturOrganisasi = () => {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
         {members.slice(1).map((member, index) => (
           <div key={index} className="flex flex-col items-center text-center">
-            <img
-              src={member.image}
-              alt={member.name}
-              className="w-20 h-20 rounded-full object-cover border-2 border-gray-300"
-            />
-            <h3 className="mt-4 text-sm font-semibold text-gray-800">
-              {member.name}
-            </h3>
-            <p className="text-xs text-gray-500 mt-1 whitespace-pre-line">
-              {member.role}
-            </p>
+            <img src={member.image} alt={member.name} className="w-20 h-20 rounded-full object-cover border-2 border-gray-300" />
+            <h3 className="mt-4 text-sm font-semibold text-gray-800">{member.name}</h3>
+            <p className="text-xs text-gray-500 mt-1 whitespace-pre-line">{member.role}</p>
           </div>
         ))}
       </div>
