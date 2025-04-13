@@ -68,7 +68,7 @@ export const Skema = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 place-content-start place-items-center">
           {skemaData.map((item) => (
             <>
-              <Link to={`/category/${item.kodeUnit}`} key={item.id} className="transform transition duration-300 ease-in-out hover:scale-105">
+              <Link to={`/category/${item.id}`} key={item.id} className="transform transition duration-300 ease-in-out hover:scale-105">
                 <CardItem id={item.id} subtitle={item.type} imageUrl={import.meta.env.VITE_API_BASE_URL + '/' + item.image_url} />
                 <h1 className="w-full mt-6 bg-[#102640] flex justify-center items-center p-3 rounded-lg text-white">{item.name}</h1>
               </Link>
