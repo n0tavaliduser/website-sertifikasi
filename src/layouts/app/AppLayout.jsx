@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import AppLayoutProvider from './context/AppLayoutContext';
 import { useAppLayout } from './context/AppLayoutContext';
 import Sidebar from '../../components/App/Sidebar';
@@ -46,30 +46,43 @@ const MainContent = ({ children }) => {
  */
 const AppLayout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   
   // Cek autentikasi ketika komponen dimuat
   useEffect(() => {
-    // Periksa jika user sudah login
-    if (!isAuthenticated()) {
-      // Redirect ke halaman login jika tidak terotentikasi
-      navigate('/auth/login');
-      return;
-    }
+    const checkAuth = () => {
+      // Periksa jika user sudah login
+      if (!isAuthenticated()) {
+        // Redirect ke halaman login jika tidak terotentikasi
+        navigate('/auth/login', { 
+          replace: true,
+          state: { from: location.pathname }
+        });
+        return false;
+      }
+      
+      // Ambil data user dari localStorage
+      const userData = getUser();
+      if (userData) {
+        setUser(userData);
+        return true;
+      } else {
+        // Jika ada token tapi tidak ada data user, redirect ke login
+        console.error("Token ditemukan tetapi tidak ada data user");
+        localStorage.removeItem('token'); // Hapus token yang tidak valid
+        navigate('/auth/login', { 
+          replace: true,
+          state: { from: location.pathname }
+        });
+        return false;
+      }
+    };
     
-    // Ambil data user dari localStorage
-    const userData = getUser();
-    if (userData) {
-      setUser(userData);
-    } else {
-      // Jika ada token tapi tidak ada data user, redirect ke login
-      logout();
-      navigate('/auth/login');
-    }
-    
-    setIsLoading(false);
-  }, [navigate]);
+    const authResult = checkAuth();
+    setIsLoading(!authResult);
+  }, [navigate, location.pathname]);
   
   // Menampilkan loading jika masih memeriksa autentikasi
   if (isLoading) {
@@ -90,8 +103,12 @@ const AppLayout = () => {
   
   // Handle logout
   const handleLogout = () => {
-    logout();
-    navigate('/auth/login');
+    // Hapus data autentikasi
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Navigasi ke halaman login via React Router untuk menghindari refresh
+    navigate('/auth/login', { replace: true });
   };
   
   // The actual layout implementation using AppLayoutProvider

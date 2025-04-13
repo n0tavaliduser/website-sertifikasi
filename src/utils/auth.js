@@ -51,8 +51,7 @@ export const hasRole = (role) => {
 export const logout = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-  // Redirect ke halaman login
-  window.location.href = '/auth/login';
+  // Tidak perlu redirect karena akan ditangani oleh komponen React
 };
 
 /**

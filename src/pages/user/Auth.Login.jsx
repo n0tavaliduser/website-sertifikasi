@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { FaEnvelope, FaLock, FaSpinner } from "react-icons/fa";
@@ -10,6 +10,29 @@ export const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Cek jika sudah login saat komponen dimuat
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    
+    if (token && user) {
+      try {
+        const userData = JSON.parse(user);
+        if (userData.role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+        // Hapus data yang rusak
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
+    }
+  }, [navigate]);
 
   // Mendapatkan API URL dari variabel lingkungan
   const API_URL = import.meta.env.VITE_API_URL || window.ENV_API_URL || "http://localhost:8000/api";
@@ -38,10 +61,19 @@ export const Login = () => {
       localStorage.setItem("token", data.token);
       if (data.user) {
         localStorage.setItem("user", JSON.stringify(data.user));
+      } else {
+        // Jika tidak ada user data dari API, buat dummy data
+        const dummyUser = { 
+          name: email.split('@')[0], 
+          role: email.includes('admin') ? 'admin' : 'user',
+          email 
+        };
+        localStorage.setItem("user", JSON.stringify(dummyUser));
       }
 
       // Redirect berdasarkan role user (jika ada) atau langsung ke admin
-      if (data.user && data.user.role === "user") {
+      const userData = data.user || JSON.parse(localStorage.getItem("user"));
+      if (userData && userData.role === "user") {
         navigate("/");
       } else {
         navigate("/admin/dashboard");
@@ -52,10 +84,20 @@ export const Login = () => {
       
       // Fallback ke login statis jika API tidak tersedia (untuk development)
       if (email === "admin@gmail.com" && password === "passwordadmin") {
-        localStorage.setItem("user", JSON.stringify({ name: "Admin", role: "admin" }));
-        navigate("/admin");
+        localStorage.setItem("token", "dummy-token");
+        localStorage.setItem("user", JSON.stringify({ 
+          name: "Admin", 
+          role: "admin",
+          email: email
+        }));
+        navigate("/admin/dashboard");
       } else if (email === "user@gmail.com" && password === "passworduser") {
-        localStorage.setItem("user", JSON.stringify({ name: "User", role: "user" }));
+        localStorage.setItem("token", "dummy-token");
+        localStorage.setItem("user", JSON.stringify({ 
+          name: "User", 
+          role: "user",
+          email: email
+        }));
         navigate("/");
       }
     } finally {
