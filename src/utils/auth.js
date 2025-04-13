@@ -52,7 +52,7 @@ export const logout = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   // Redirect ke halaman login
-  window.location.href = '/login';
+  window.location.href = '/auth/login';
 };
 
 /**
