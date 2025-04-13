@@ -23,7 +23,7 @@ const SidebarHeader = () => {
         <div className="flex items-center">
           {/* App Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <img 
+            {/* <img 
               src="/logo.svg" 
               alt="Logo" 
               className="h-8 w-8"
@@ -31,7 +31,7 @@ const SidebarHeader = () => {
                 e.target.onerror = null;
                 e.target.src = 'https://via.placeholder.com/32?text=Logo';
               }}
-            />
+            /> */}
             
             <span className="ml-2 text-white text-lg font-semibold">
               SertifikasiApp
