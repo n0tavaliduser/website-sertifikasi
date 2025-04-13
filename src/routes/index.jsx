@@ -5,11 +5,11 @@ import IconLoading from "@/components/Loading";
 import NewsDetail from "@/components/DetailNews";
 import CategoryTable from "@/components/CategoryTable";
 import AuthLogin from "@/pages/user/Auth.Login";
-import AdminLayout from "@/components/Sidebar/Layout";
+import AppLayout from "@/layouts/app/AppLayout";
 
 const { Home, Gallery, Tuks, Berita, Partnership, Tentang, Skema, Kontak } =
   lazily(() => import("@/pages/user"));
-const { AdminSkema, AdminGalery, AdminBerita  } =
+const { HomeDashboard } =
   lazily(() => import("@/pages/admin"));
  
 
@@ -101,29 +101,13 @@ const router = createBrowserRouter([
 // admin route
 {
   path: "/admin", // Corrected path
-  element: <AdminLayout />,
+  element: <AppLayout />,
   children: [
     {
-      path: "skema", // Removed leading slash
+      path: "dashboard", // Removed leading slash
       element: (
         <Suspense fallback={<IconLoading />}>
-          <AdminSkema />
-        </Suspense>
-      ),
-    },
-    {
-      path: "galeri", // Removed leading slash
-      element: (
-        <Suspense fallback={<IconLoading />}>
-          <AdminGalery />
-        </Suspense>
-      ),
-    },
-    {
-      path: "berita", // Removed leading slash
-      element: (
-        <Suspense fallback={<IconLoading />}>
-          <AdminBerita />
+          <HomeDashboard />
         </Suspense>
       ),
     },
