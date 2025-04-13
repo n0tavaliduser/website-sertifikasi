@@ -1,5 +1,5 @@
-import React from 'react';
-import { FiLogOut, FiUser, FiSettings } from 'react-icons/fi';
+import React, { useState, useRef, useEffect } from 'react';
+import { FiLogOut, FiUser, FiChevronUp } from 'react-icons/fi';
 import { useAppLayout } from '../../../../layouts/app/context/AppLayoutContext';
 
 /**
@@ -11,19 +11,54 @@ import { useAppLayout } from '../../../../layouts/app/context/AppLayoutContext';
  */
 const SidebarFooter = ({ user = {}, onLogout = () => {} }) => {
   const { isSidebarOpen } = useAppLayout();
+  const [showLogout, setShowLogout] = useState(false);
+  const menuRef = useRef(null);
   
   // Default user data if not provided
   const defaultUser = {
-    name: user.name || 'Guest User',
-    email: user.email || 'guest@example.com',
-    role: user.role || 'Guest',
+    name: user.name || 'John Doe',
+    email: user.email || 'john.doe@example.com',
+    role: user.role || 'Administrator',
     avatar: user.avatar || null
   };
   
+  // Menutup dropdown ketika klik di luar
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowLogout(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+  
+  // Toggle dropdown
+  const toggleLogout = () => {
+    setShowLogout(prev => !prev);
+  };
+  
   return (
-    <div className="border-t border-slate-700 pt-2">
+    <div className="border-t border-slate-700 pt-2 relative" ref={menuRef}>
+      {/* Logout dropdown - arah ke atas */}
+      {showLogout && (
+        <div className="absolute bottom-full left-0 w-full mb-2 bg-slate-800 rounded-md shadow-lg py-2 z-10">
+          <button 
+            className="w-full flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-slate-700"
+            onClick={onLogout}
+          >
+            <FiLogOut className="mr-2" size={16} />
+            Logout
+          </button>
+        </div>
+      )}
+      
       {/* User Info Section */}
-      <div className="px-4 py-3">
+      <div 
+        className="px-4 py-3 cursor-pointer hover:bg-slate-700 rounded-md transition-colors"
+        onClick={toggleLogout}
+      >
         <div className="flex items-center">
           {/* User Avatar */}
           <div className="flex-shrink-0 h-10 w-10 rounded-full bg-slate-600 flex items-center justify-center text-white overflow-hidden">
@@ -45,7 +80,7 @@ const SidebarFooter = ({ user = {}, onLogout = () => {} }) => {
           
           {/* User Details - shown only when sidebar is open */}
           {isSidebarOpen && (
-            <div className="ml-3">
+            <div className="ml-3 flex-grow">
               <p className="text-sm font-medium text-white truncate">
                 {defaultUser.name}
               </p>
@@ -54,29 +89,15 @@ const SidebarFooter = ({ user = {}, onLogout = () => {} }) => {
               </p>
             </div>
           )}
+          
+          {/* Dropdown indicator - shown only when sidebar is open */}
+          {isSidebarOpen && (
+            <FiChevronUp 
+              size={16} 
+              className={`text-gray-400 transform transition-transform ${showLogout ? '' : 'rotate-180'}`}
+            />
+          )}
         </div>
-      </div>
-      
-      {/* Action Buttons */}
-      <div className={`px-3 pb-3 ${isSidebarOpen ? 'flex justify-between' : ''}`}>
-        {/* Settings Button */}
-        <button 
-          type="button" 
-          className="p-2 text-gray-400 rounded-md hover:bg-slate-700 hover:text-white transition-colors"
-          title={!isSidebarOpen ? 'Settings' : ''}
-        >
-          <FiSettings size={18} />
-        </button>
-        
-        {/* Logout Button */}
-        <button 
-          type="button" 
-          className="p-2 text-gray-400 rounded-md hover:bg-slate-700 hover:text-white transition-colors"
-          onClick={onLogout}
-          title={!isSidebarOpen ? 'Logout' : ''}
-        >
-          <FiLogOut size={18} />
-        </button>
       </div>
       
       {/* Version Info - shown only when sidebar is open */}
