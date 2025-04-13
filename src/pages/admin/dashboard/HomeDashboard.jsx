@@ -179,7 +179,7 @@ export const HomeDashboard = () => {
       {/* Judul Halaman */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Selamat datang kembali, Admin!</p>
+        <p className="text-gray-600 mt-1">Selamat datang kembali!</p>
       </div>
       
       {/* Statistik Utama */}

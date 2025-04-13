@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiMenu, FiUser, FiChevronDown, FiLogOut } from 'react-icons/fi';
 import { useAppLayout } from '../context/AppLayoutContext';
+import { getUser } from '@/utils/auth';
 
 /**
  * Header component for the dashboard
@@ -13,8 +14,8 @@ import { useAppLayout } from '../context/AppLayoutContext';
  */
 const Header = ({ 
   title = 'Dashboard', 
-  user = {}, 
-  onLogout = () => {} 
+  user = {},
+  onLogout = () => {}
 }) => {
   const { 
     isSidebarOpen, 
@@ -25,6 +26,17 @@ const Header = ({
   
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const [userData, setUserData] = useState(user);
+  
+  // Ambil data user dari auth utils jika tidak ada yang diberikan melalui props
+  useEffect(() => {
+    if (!user || !user.name) {
+      const authUser = getUser();
+      if (authUser) {
+        setUserData(authUser);
+      }
+    }
+  }, [user]);
   
   const isMobile = currentBreakpoint === 'xs' || currentBreakpoint === 'sm';
   
@@ -88,10 +100,10 @@ const Header = ({
               onClick={toggleDropdown}
             >
               <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
-                {user.avatar ? (
+                {userData.avatar ? (
                   <img 
-                    src={user.avatar} 
-                    alt={user.name || 'User'} 
+                    src={userData.avatar} 
+                    alt={userData.name || 'User'} 
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -102,7 +114,7 @@ const Header = ({
               {/* User name - hidden on small screens */}
               <div className="hidden md:flex items-center">
                 <span className="text-sm font-medium text-gray-700">
-                  {user.name || 'User'}
+                  {userData.name || 'User'}
                 </span>
                 <FiChevronDown 
                   size={16} 
