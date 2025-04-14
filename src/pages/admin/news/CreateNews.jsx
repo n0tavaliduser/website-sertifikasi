@@ -164,11 +164,11 @@ const CreateNews = () => {
       formDataToSend.append('author', formData.author);
       
       if (imageFile) {
-        formDataToSend.append('image_url', imageFile);
+        formDataToSend.append('image_news', imageFile);
       }
       
       if (authorImageFile) {
-        formDataToSend.append('author_image', authorImageFile);
+        formDataToSend.append('image_author', authorImageFile);
       }
       
       const token = localStorage.getItem('token');
