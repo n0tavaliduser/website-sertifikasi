@@ -62,6 +62,13 @@ const SidebarNav = () => {
           label="News" 
           isActive={isPathActive('/news', pathname)}
         />
+
+        <SidebarNavItem 
+          to="/admin/tuks" 
+          icon={<FiFileText />} 
+          label="TUKS" 
+          isActive={isPathActive("/tuks", pathname)}
+        />
       </nav>
     </div>
   );
