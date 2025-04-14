@@ -57,8 +57,10 @@ export const Login = () => {
         throw new Error(data.message || "Login gagal");
       }
 
+      console.log(data);
+
       // Simpan token dan data user di localStorage
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("token", data.access_token);
       if (data.user) {
         localStorage.setItem("user", JSON.stringify(data.user));
       } else {
