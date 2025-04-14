@@ -8,7 +8,8 @@ import {
   FiSettings, 
   FiBell,
   FiShield,
-  FiLayers
+  FiLayers,
+  FiImage
 } from 'react-icons/fi';
 
 import SidebarNavItem from './SidebarNavItem';
@@ -68,6 +69,13 @@ const SidebarNav = () => {
           icon={<FiFileText />} 
           label="TUKS" 
           isActive={isPathActive("/tuks", pathname)}
+        />
+
+        <SidebarNavItem 
+          to="/admin/gallery" 
+          icon={<FiImage />} 
+          label="Gallery" 
+          isActive={isPathActive("/gallery", pathname)}
         />
       </nav>
     </div>
