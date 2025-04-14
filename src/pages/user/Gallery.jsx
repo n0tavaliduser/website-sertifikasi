@@ -1,45 +1,37 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import React from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
-// Image imports
-import IMG_20241209_WA0056 from "@/assets/galeri/IMG-20241209-WA0056.jpg";
-import IMG_20241214_WA0001 from "@/assets/galeri/IMG-20241214-WA0001.jpg";
-import IMG_20241214_WA0002 from "@/assets/galeri/IMG-20241214-WA0002.jpg";
-import IMG_20241214_WA0003 from "@/assets/galeri/IMG-20241214-WA0003.jpg";
-import IMG_20241214_WA0004 from "@/assets/galeri/IMG-20241214-WA0004.jpg";
-import IMG_20241214_WA0005 from "@/assets/galeri/IMG-20241214-WA0005.jpg";
-import IMG_20241214_WA0006 from "@/assets/galeri/IMG-20241214-WA0006.jpg";
-import IMG_20241214_WA0007 from "@/assets/galeri/IMG-20241214-WA0007.jpg";
-import IMG_20241214_WA0008 from "@/assets/galeri/IMG-20241214-WA0008.jpg";
-import IMG_20241214_WA0009 from "@/assets/galeri/IMG-20241214-WA0009.jpg";
-import IMG_20241214_WA0010 from "@/assets/galeri/IMG-20241214-WA0010.jpg";
-import IMG_20241214_WA0011 from "@/assets/galeri/IMG-20241214-WA0011.jpg";
-import IMG_20241214_WA0012 from "@/assets/galeri/IMG-20241214-WA0012.jpg";
+export function Gallery() {
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-export const Gallery = () => {
-  const imageUrls = [
-    IMG_20241209_WA0056,
-    IMG_20241214_WA0001,
-    IMG_20241214_WA0002,
-    IMG_20241214_WA0003,
-    IMG_20241214_WA0004,
-    IMG_20241214_WA0005,
-    IMG_20241214_WA0006,
-    IMG_20241214_WA0007,
-    IMG_20241214_WA0008,
-    IMG_20241214_WA0009,
-    IMG_20241214_WA0010,
-    IMG_20241214_WA0011,
-    IMG_20241214_WA0012,
-  ];
+  useEffect(() => {
+    const fetchGalleryImages = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/galleries-references`);
+        if (response.data.success) {
+          setImages(response.data.data);
+        } else {
+          console.error("Failed to fetch gallery images:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching gallery images:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Membagi array menjadi 4 grup gambar (masing-masing 3 gambar)
+    fetchGalleryImages();
+  }, []);
+
+  // Membagi array menjadi 4 grup gambar
   const chunkedImages = [];
   const chunkSize = 3;
 
-  for (let i = 0; i < imageUrls.length; i += chunkSize) {
-    chunkedImages.push(imageUrls.slice(i, i + chunkSize));
+  for (let i = 0; i < images.length; i += chunkSize) {
+    chunkedImages.push(images.slice(i, i + chunkSize));
   }
 
   return (
@@ -67,7 +59,7 @@ export const Gallery = () => {
         <div>
           <h2 className="text-sm md:text-xl lg:text-2xl flex justify-center items-center gap-2 font-semibold">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <g fill="none" stroke="#8f621c" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <g fill="none" stroke="#8f621c" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2">
                 <path d="M5 7h1a2 2 0 0 0 2-2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2" />
                 <path d="M9 13a3 3 0 1 0 6 0a3 3 0 0 0-6 0" />
               </g>
@@ -76,17 +68,21 @@ export const Gallery = () => {
           </h2>
         </div>
       </div>
+      {loading ? (
+        <div className="flex justify-center items-center py-20">Loading gallery images...</div>
+      ) : (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-8 mx-2 md:mx-4 lg:container lg:mx-auto">
         {chunkedImages.map((group, index) => (
           <div key={index} className="grid gap-4">
-            {group.map((url, idx) => (
+            {group.map((image, idx) => (
               <div key={idx}>
-                <img className="h-auto max-w-full rounded-lg" src={url} alt={`Image ${idx}`} />
+                <img className="h-auto max-w-full rounded-lg" src={`${import.meta.env.VITE_API_BASE_URL}/${image.image_url}`} alt={`Image ${idx}`} />
               </div>
             ))}
           </div>
         ))}
-      </div>
+        </div>
+      )}
 
       <section>
         <Footer />
