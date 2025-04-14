@@ -6,6 +6,7 @@ import NewsDetail from "@/components/DetailNews";
 import CategoryTable from "@/components/CategoryTable";
 import AuthLogin from "@/pages/user/Auth.Login";
 import AppLayout from "@/layouts/app/AppLayout";
+import PartnershipList from "@/pages/admin/partnership/PartnershipList";
 
 const { Home, Gallery, Tuks, Berita, Partnership, Tentang, Skema, Kontak } =
   lazily(() => import("@/pages/user"));
@@ -110,6 +111,12 @@ const router = createBrowserRouter([
           <HomeDashboard />
         </Suspense>
       ),
+    },
+
+    // partnership
+    {
+      path: "partnership",
+      element: <PartnershipList />,
     },
   ],
 },
