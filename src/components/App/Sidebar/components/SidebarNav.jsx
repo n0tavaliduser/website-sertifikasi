@@ -47,69 +47,20 @@ const SidebarNav = () => {
           isActive={isPathActive('/dashboard', pathname, true)}
         />
         
-        {/* User Management Group */}
-        <SidebarNavGroup
-          title="User Management"
-          icon={<FiUsers />}
-          defaultExpanded={isPathActive('/users', pathname)}
-        >
-          <SidebarNavItem 
-            to="/users" 
-            icon={<FiUsers />} 
-            label="All Users" 
-            isActive={isPathActive('/users', pathname, true)}
-          />
-          <SidebarNavItem 
-            to="/users/roles" 
-            icon={<FiShield />} 
-            label="Roles & Permissions" 
-            isActive={isPathActive('/users/roles', pathname)}
-          />
-        </SidebarNavGroup>
-        
-        {/* Content Management */}
-        <SidebarNavGroup
-          title="Content"
-          icon={<FiFileText />}
-          defaultExpanded={isPathActive('/content', pathname)}
-        >
-          <SidebarNavItem 
-            to="/content/skema" 
-            icon={<FiLayers />} 
-            label="Skema Sertifikasi" 
-            isActive={isPathActive('/content/skema', pathname)}
-          />
-          <SidebarNavItem 
-            to="/content/berita" 
-            icon={<FiFileText />} 
-            label="Berita" 
-            isActive={isPathActive('/content/berita', pathname)}
-          />
-        </SidebarNavGroup>
-        
         {/* Reports Link */}
         <SidebarNavItem 
-          to="/reports" 
-          icon={<FiBarChart2 />} 
-          label="Reports & Analytics" 
-          isActive={isPathActive('/reports', pathname)}
+          to="/admin/partnership" 
+          icon={<FiUsers />} 
+          label="Partnership" 
+          isActive={isPathActive('/partnership', pathname)}
         />
         
         {/* Notifications Link with Badge */}
         <SidebarNavItem 
-          to="/notifications" 
-          icon={<FiBell />} 
-          label="Notifications" 
-          badge="5"
-          isActive={isPathActive('/notifications', pathname)}
-        />
-        
-        {/* Settings Link */}
-        <SidebarNavItem 
-          to="/settings" 
-          icon={<FiSettings />} 
-          label="Settings" 
-          isActive={isPathActive('/settings', pathname)}
+          to="/admin/news" 
+          icon={<FiFileText />} 
+          label="News" 
+          isActive={isPathActive('/news', pathname)}
         />
       </nav>
     </div>
