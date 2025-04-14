@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense } from "react";
 import { lazily } from "react-lazily";
 import { createBrowserRouter } from "react-router-dom";
 import IconLoading from "@/components/Loading";
