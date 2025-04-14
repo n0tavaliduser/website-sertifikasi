@@ -76,7 +76,7 @@ export function Gallery() {
           <div key={index} className="grid gap-4">
             {group.map((image, idx) => (
               <div key={idx}>
-                <img className="h-auto max-w-full rounded-lg" src={`${import.meta.env.VITE_API_BASE_URL}/${image.image_url}`} alt={`Image ${idx}`} />
+                <img className="h-auto max-w-full rounded-lg" src={image.image_url ? `${import.meta.env.VITE_API_BASE_URL}/${image.image_url}` : "src/assets/placeholder.jpg"} alt={`Image ${idx}`} />
               </div>
             ))}
           </div>
