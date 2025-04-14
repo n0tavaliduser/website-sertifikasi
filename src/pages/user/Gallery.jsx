@@ -26,14 +26,6 @@ export function Gallery() {
     fetchGalleryImages();
   }, []);
 
-  // Membagi array menjadi 4 grup gambar
-  const chunkedImages = [];
-  const chunkSize = 3;
-
-  for (let i = 0; i < images.length; i += chunkSize) {
-    chunkedImages.push(images.slice(i, i + chunkSize));
-  }
-
   return (
     <section>
       <Navbar />
@@ -69,18 +61,22 @@ export function Gallery() {
         </div>
       </div>
       {loading ? (
-        <div className="flex justify-center items-center py-20">Loading gallery images...</div>
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#102640]"></div>
+        </div>
       ) : (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-8 mx-2 md:mx-4 lg:container lg:mx-auto">
-        {chunkedImages.map((group, index) => (
-          <div key={index} className="grid gap-4">
-            {group.map((image, idx) => (
-              <div key={idx}>
-                <img className="h-auto max-w-full rounded-lg" src={image.image_url ? `${import.meta.env.VITE_API_BASE_URL}/${image.image_url}` : "src/assets/placeholder.jpg"} alt={`Image ${idx}`} />
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {images.map((image, idx) => (
+              <div key={idx} className="overflow-hidden rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105">
+                <img 
+                  className="w-full h-64 object-cover" 
+                  src={image.image_url ? `${import.meta.env.VITE_API_BASE_URL}/${image.image_url}` : "https://via.placeholder.com/300"} 
+                  alt={`Image ${idx}`} 
+                />
               </div>
             ))}
           </div>
-        ))}
         </div>
       )}
 
