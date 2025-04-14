@@ -214,7 +214,7 @@ const NewsList = () => {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => navigate(`view/${item.slug}`)}
+                    onClick={() => navigate(`news/${item.slug}`)}
                     className="flex items-center gap-1"
                   >
                     <FiEye className="h-4 w-4" /> Lihat
