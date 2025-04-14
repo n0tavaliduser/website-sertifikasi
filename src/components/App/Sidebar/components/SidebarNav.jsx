@@ -41,7 +41,7 @@ const SidebarNav = () => {
       <nav className="px-3 space-y-1">
         {/* Dashboard Link */}
         <SidebarNavItem 
-          to="/dashboard" 
+          to="/admin/dashboard" 
           icon={<FiHome />} 
           label="Dashboard" 
           isActive={isPathActive('/dashboard', pathname, true)}
