@@ -10,6 +10,9 @@ import PartnershipList from "@/pages/admin/partnership/PartnershipList";
 import NewsList from "@/pages/admin/news/NewsList";
 import EditNews from "@/pages/admin/news/EditNews";
 import CreateNews from "@/pages/admin/news/CreateNews";
+import TuksList from "@/pages/admin/tuks/TuksList";
+import CreateTuks from "@/pages/admin/tuks/CreateTuks";
+import EditTuks from "@/pages/admin/tuks/EditTuks";
 
 const { Home, Gallery, Tuks, Berita, Partnership, Tentang, Skema, Kontak } =
   lazily(() => import("@/pages/user"));
@@ -134,6 +137,20 @@ const router = createBrowserRouter([
     {
       path: "news/:id/edit",
       element: <EditNews />,
+    },
+
+    // tuks
+    {
+      path: "tuks",
+      element: <TuksList />,
+    },
+    {
+      path: "tuks/create",
+      element: <CreateTuks />,
+    },
+    {
+      path: "tuks/:id/edit",
+      element: <EditTuks />,
     },
   ],
 },
