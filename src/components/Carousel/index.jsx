@@ -1,43 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
-
-// Image imports
-import AMAInstitute from "@/assets/Partnership/AMA Institute.png";
-import AlfaBank from "@/assets/Partnership/Alfa Bank.png";
-import AuliLearningCentre from "@/assets/Partnership/Auli Learning Centre.png";
-import BPKH from "@/assets/Partnership/BPKH.png";
-import BalaiBesarBahanBarangTeknik from "@/assets/Partnership/Balai Besar Bahan Barang Teknik.png";
-import BalaiBesarTekstil from "@/assets/Partnership/Balai Besar Tekstil.png";
-import ButterflyConsulingIndonesia from "@/assets/Partnership/Butterfly Consuling Indonesia.jpg";
-import CentragamaIndovisi from "@/assets/Partnership/Centragama Indovisi.png";
-import Disnaker from "@/assets/Partnership/Disnaker.jpeg";
-import DisperkitmanKabBekasi from "@/assets/Partnership/Disperkitman Kab. Bekasi.png";
-import EltasaPrimaKonsulta from "@/assets/Partnership/Eltasa Prima Konsulta.png";
-import LPKCahayaBangsa from "@/assets/Partnership/LPK Cahaya Bangsa.png";
-import LPKIABandung from "@/assets/Partnership/LPKIA Bandung.png";
-import LogoKadin from "@/assets/Partnership/Logo Kadin.png";
-import P2KPTK2 from "@/assets/Partnership/P2KPTK2.png";
-import PNM from "@/assets/Partnership/PNM (Permodalan Nasional Madani).png";
-import POLNEP from "@/assets/Partnership/POLNEP.jpeg";
-import PTExpertindo from "@/assets/Partnership/PT.Expertindo.png";
-import PemkabBandung from "@/assets/Partnership/Pemkab. Bandung.png";
-import PoliteknikNegeriBandung from "@/assets/Partnership/Politeknik Negeri Bandung.png";
-import STPNHIBandung from "@/assets/Partnership/STP NHI Bandung.png";
-import STTTBandung from "@/assets/Partnership/STTT Bandung.png";
-import SekolahTinggiIlmuKesehatanBudiLuhurCimahi from "@/assets/Partnership/Sekolah Tinggi Ilmu Kesehatan Budi Luhur Cimahi.png";
-import SekretariatDewanDPRDJABAR from "@/assets/Partnership/Sekretariat Dewan DPRD JABAR.png";
-import TenagaKerjaKompetenIndonesia from "@/assets/Partnership/Tenaga Kerja Kompeten Indonesia.png";
-import UNWIM from "@/assets/Partnership/UNWIM.jpeg";
-import UniversitasIslamBandung from "@/assets/Partnership/Universitas Islam Bandung.png";
-import UniversitasIslamNegeriSGJ from "@/assets/Partnership/Universitas Islam Negeri SGJ.png";
-import UniversitasNegeriJakarta from "@/assets/Partnership/Universitas Negeri Jakarta.png";
-import UniversitasNegeriJendralSoedirman from "@/assets/Partnership/Universitas Negeri Jendral Soedirman.png";
-import UniversitasNegeriSemarang from "@/assets/Partnership/Universitas Negeri Semarang.png";
-import UniversitasPakuan from "@/assets/Partnership/Universitas Pakuan.png";
-import UniversitasTelkom from "@/assets/Partnership/Universitas Telkom.png";
-import isi from "@/assets/Partnership/isi.png";
-import setwanKota from "@/assets/Partnership/setwan kota.png";
+import { FaSpinner } from "react-icons/fa";
 
 const responsive = {
   desktop: {
@@ -57,45 +21,65 @@ const responsive = {
   },
 };
 
-const sliderImageUrl = [
-  AMAInstitute,
-  AlfaBank,
-  AuliLearningCentre,
-  BPKH,
-  BalaiBesarBahanBarangTeknik,
-  BalaiBesarTekstil,
-  ButterflyConsulingIndonesia,
-  CentragamaIndovisi,
-  Disnaker,
-  DisperkitmanKabBekasi,
-  EltasaPrimaKonsulta,
-  LPKCahayaBangsa,
-  LPKIABandung,
-  LogoKadin,
-  P2KPTK2,
-  PNM,
-  POLNEP,
-  PTExpertindo,
-  PemkabBandung,
-  PoliteknikNegeriBandung,
-  STPNHIBandung,
-  STTTBandung,
-  SekolahTinggiIlmuKesehatanBudiLuhurCimahi,
-  SekretariatDewanDPRDJABAR,
-  TenagaKerjaKompetenIndonesia,
-  UNWIM,
-  UniversitasIslamBandung,
-  UniversitasIslamNegeriSGJ,
-  UniversitasNegeriJakarta,
-  UniversitasNegeriJendralSoedirman,
-  UniversitasNegeriSemarang,
-  UniversitasPakuan,
-  UniversitasTelkom,
-  isi,
-  setwanKota,
-];
-
 const Slider = () => {
+  const [partnershipData, setPartnershipData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Mendapatkan API URL dari variabel lingkungan
+  const API_URL = import.meta.env.VITE_API_URL || window.ENV_API_URL || "http://localhost:8000/api";
+
+  useEffect(() => {
+    // Fungsi untuk mengambil data partnership dari API
+    const fetchPartnershipData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_URL}/partnerships-references`);
+        
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          setPartnershipData(result.data);
+        } else {
+          setError(result.message || "Gagal mendapatkan data partnership");
+          // Jika tidak ada data, tetap tampilkan UI kosong
+          setPartnershipData([]);
+        }
+      } catch (err) {
+        console.error("Error fetching partnership data:", err);
+        setError("Terjadi kesalahan saat mengambil data partnership");
+        // Jika error, tetap tampilkan UI kosong
+        setPartnershipData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPartnershipData();
+  }, [API_URL]);
+
+  // Menampilkan loading spinner selama data dimuat
+  if (loading) {
+    return (
+      <div className="lg:parent lg:container mx-auto flex justify-center items-center py-10">
+        <FaSpinner className="animate-spin text-4xl text-gray-600" />
+      </div>
+    );
+  }
+
+  // Jika tidak ada data partnership, tampilkan pesan
+  if (partnershipData.length === 0) {
+    return (
+      <div className="lg:parent lg:container mx-auto text-center py-10">
+        <p className="text-gray-500">Tidak ada data partnership tersedia saat ini.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="lg:parent lg:container mx-auto">
       <Carousel
@@ -105,21 +89,24 @@ const Slider = () => {
         transitionDuration={1000}
         swipeable={true}
         draggable={true}
-        // showDots={true}
         infinite={true}
         partialVisible={false}
         arrows={false}
         dotListClass="custom-dot-list-style"
       >
-        {sliderImageUrl.map((imageUrl, index) => (
-          <div className="slider" key={index}>
+        {partnershipData.map((partner, index) => (
+          <div className="slider" key={partner.id || index}>
             <img
-              src={imageUrl}
-              alt={`Partnership ${index + 1}`}
+              src={import.meta.env.VITE_API_BASE_URL + '/' + partner.image_url || 'src/assets/placeholder.jpg'}
+              alt={partner.name || `Partnership ${index + 1}`}
               className="w-full h-auto object-cover"
               style={{
                 width: "100%",
                 height: "auto",
+              }}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'src/assets/placeholder.jpg';
               }}
             />
           </div>
