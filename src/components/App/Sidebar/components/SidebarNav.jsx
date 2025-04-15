@@ -77,6 +77,13 @@ const SidebarNav = () => {
           label="Gallery" 
           isActive={isPathActive("/gallery", pathname)}
         />
+
+        <SidebarNavItem 
+          to="/admin/instance" 
+          icon={<FiShield />} 
+          label="Instance" 
+          isActive={isPathActive("/instance", pathname)}
+        />
       </nav>
     </div>
   );
