@@ -14,6 +14,7 @@ import TuksList from "@/pages/admin/tuks/TuksList";
 import CreateTuks from "@/pages/admin/tuks/CreateTuks";
 import EditTuks from "@/pages/admin/tuks/EditTuks";
 import GalleryList from "@/pages/admin/gallery/GalleryList";
+import InstanceList from "@/pages/admin/instance/InstanceList";
 
 const { Home, Gallery, Tuks, Berita, Partnership, Tentang, Skema, Kontak } =
   lazily(() => import("@/pages/user"));
@@ -158,6 +159,12 @@ const router = createBrowserRouter([
     {
       path: "gallery",
       element: <GalleryList />,
+    },
+
+    // instance
+    {
+      path: "instance",
+      element: <InstanceList />,
     },
   ],
 },
