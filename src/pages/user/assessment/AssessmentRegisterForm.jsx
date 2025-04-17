@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import {
   FaCheckCircle
 } from "react-icons/fa";
+import DocumentUpload from "./DocumentUpload";
+import APL02Upload from "./APL02Upload";
+import Confirmation from "./Confirmation";
 
 const AssessmentRegisterForm = () => {
   const navigate = useNavigate();
@@ -316,11 +319,103 @@ const AssessmentRegisterForm = () => {
         }
         break;
       
-      // Validasi untuk step lainnya akan ditambahkan kemudian
+      case 3:
+        // Validate document uploads
+        if (!formData.lastDiploma) {
+          errors.lastDiploma = "Ijazah terakhir wajib diunggah";
+          isValid = false;
+        }
+        
+        if (!formData.idCard) {
+          errors.idCard = "KTP wajib diunggah";
+          isValid = false;
+        }
+        
+        if (!formData.familyCard) {
+          errors.familyCard = "Kartu Keluarga wajib diunggah";
+          isValid = false;
+        }
+        
+        if (!formData.photo) {
+          errors.photo = "Pas Foto wajib diunggah";
+          isValid = false;
+        }
+        
+        if (!formData.instanceSupport) {
+          errors.instanceSupport = "Surat Dukungan Instansi wajib diunggah";
+          isValid = false;
+        }
+        
+        if (!formData.apl01) {
+          errors.apl01 = "Dokumen APL 01 wajib diunggah";
+          isValid = false;
+        }
+        break;
+      
+      case 4:
+        // Validate APL 02
+        if (!formData.apl02) {
+          errors.apl02 = "Dokumen APL 02 wajib diunggah";
+          isValid = false;
+        }
+        break;
+      
+      case 5:
+        // Validate confirmations
+        if (!formData.hasCompletedAssessment) {
+          errors.hasCompletedAssessment = "Anda harus menyetujui pernyataan ini untuk melanjutkan";
+          isValid = false;
+        }
+        
+        if (!formData.requestCertificate) {
+          errors.requestCertificate = "Anda harus menyetujui untuk mengajukan permohonan";
+          isValid = false;
+        }
+        break;
     }
     
     setFormErrors(errors);
     return isValid;
+  };
+  
+  // Handle template download
+  const handleDownloadTemplate = (templateType) => {
+    try {
+      // Simulasi download template
+      let fileName = '';
+      let fileUrl = '';
+      
+      switch (templateType) {
+        case 'apl01':
+          fileName = 'APL_01_Formulir_Permohonan.pdf';
+          fileUrl = '/templates/APL_01_Formulir_Permohonan.pdf';
+          break;
+        case 'apl02_observasi':
+          fileName = 'APL_02_Observasi.pdf';
+          fileUrl = '/templates/APL_02_Observasi.pdf';
+          break;
+        case 'apl02_portofolio':
+          fileName = 'APL_02_Portofolio.pdf';
+          fileUrl = '/templates/APL_02_Portofolio.pdf';
+          break;
+        default:
+          setError('Template tidak tersedia');
+          return;
+      }
+      
+      // Dalam implementasi nyata, ini bisa mengambil file dari server
+      // Untuk contoh ini, kita hanya mensimulasikan download
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+    } catch (err) {
+      console.error('Error downloading template:', err);
+      setError('Gagal mengunduh template. Silakan coba lagi nanti.');
+    }
   };
   
   // Handle next step
@@ -603,7 +698,46 @@ const AssessmentRegisterForm = () => {
           </div>
         );
       
-      // Step lain akan dilanjutkan di komponen berikutnya
+      case 3:
+        // Integrasikan komponen DocumentUpload
+        return (
+          <div>
+            <DocumentUpload 
+              formData={formData}
+              formErrors={formErrors}
+              handleFileChange={handleFileChange}
+              handleDownloadTemplate={handleDownloadTemplate}
+            />
+          </div>
+        );
+      
+      case 4:
+        // APL 02 Upload component
+        return (
+          <div>
+            <APL02Upload
+              formData={formData}
+              formErrors={formErrors}
+              handleFileChange={handleFileChange}
+              handleDownloadTemplate={handleDownloadTemplate}
+              handleSupportingDocumentAdd={handleSupportingDocumentAdd}
+              handleRemoveSupportingDocument={handleRemoveSupportingDocument}
+            />
+          </div>
+        );
+        
+      case 5:
+        // Confirmation component
+        return (
+          <div>
+            <Confirmation
+              formData={formData}
+              formErrors={formErrors}
+              handleChange={handleInputChange}
+            />
+          </div>
+        );
+      
       default:
         return null;
     }
