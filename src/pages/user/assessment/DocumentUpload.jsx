@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaCloudUploadAlt, FaFileAlt, FaTrash, FaExclamationCircle } from 'react-icons/fa';
 
 // Komponen sederhana tanpa ketergantungan pada props handleChange dari parent
-const DocumentUpload = ({ formData, formErrors, handleChange }) => {
+const DocumentUpload = ({ formData, formErrors, handleChange, handleFileChange, handleDownloadTemplate }) => {
   // State lokal untuk menyimpan file yang dipilih
   const [localFormData, setLocalFormData] = useState({
     lastDiploma: null,
@@ -18,6 +18,9 @@ const DocumentUpload = ({ formData, formErrors, handleChange }) => {
   // Update state lokal saat formData berubah
   useEffect(() => {
     if (formData) {
+      // Log data yang diterima dari parent
+      console.log("formData received in DocumentUpload:", formData);
+      
       setLocalFormData({
         lastDiploma: formData.lastDiploma || null,
         idCard: formData.idCard || null,
@@ -31,32 +34,8 @@ const DocumentUpload = ({ formData, formErrors, handleChange }) => {
     }
   }, [formData]);
 
-  // Fungsi untuk menyinkronkan data lokal dengan parent component
-  useEffect(() => {
-    // Jika handleChange adalah fungsi, update data ke parent
-    if (typeof handleChange === 'function') {
-      // Sinkronisasi untuk setiap field
-      Object.keys(localFormData).forEach(fieldName => {
-        const value = localFormData[fieldName];
-        if (formData && formData[fieldName] !== value) {
-          try {
-            const eventObj = {
-              target: {
-                name: fieldName,
-                value: value
-              }
-            };
-            handleChange(eventObj);
-          } catch (err) {
-            console.log(`Gagal menyinkronkan ${fieldName}:`, err);
-          }
-        }
-      });
-    }
-  }, [localFormData, handleChange, formData]);
-
-  // Fungsi sederhana untuk menangani upload file
-  const handleFileChange = (e, fieldName) => {
+  // Fungsi untuk menangani upload file
+  const handleLocalFileChange = (e, fieldName) => {
     const file = e.target.files[0];
     if (!file) return;
     
@@ -76,11 +55,41 @@ const DocumentUpload = ({ formData, formErrors, handleChange }) => {
       return;
     }
     
+    // Tambahkan properti lastModified jika tidak ada
+    if (!file.lastModified) {
+      Object.defineProperty(file, 'lastModified', {
+        value: Date.now(),
+        writable: false
+      });
+    }
+    
     // Update ke state lokal
     setLocalFormData(prevData => ({
       ...prevData,
       [fieldName]: file
     }));
+
+    // Debug
+    console.log(`File uploaded for ${fieldName}:`, file);
+    
+    // Update langsung ke parent component
+    if (typeof handleChange === 'function') {
+      const eventObj = {
+        target: {
+          name: fieldName,
+          value: file
+        }
+      };
+      handleChange(eventObj);
+    } else if (typeof handleFileChange === 'function') {
+      // Alternatif jika handleChange tidak tersedia
+      handleFileChange({
+        target: {
+          name: fieldName,
+          value: file
+        }
+      });
+    }
   };
   
   // Fungsi untuk menghapus file
@@ -89,6 +98,25 @@ const DocumentUpload = ({ formData, formErrors, handleChange }) => {
       ...prevData,
       [fieldName]: null
     }));
+    
+    // Update ke parent component
+    if (typeof handleChange === 'function') {
+      const eventObj = {
+        target: {
+          name: fieldName,
+          value: null
+        }
+      };
+      handleChange(eventObj);
+    } else if (typeof handleFileChange === 'function') {
+      // Alternatif jika handleChange tidak tersedia
+      handleFileChange({
+        target: {
+          name: fieldName,
+          value: null
+        }
+      });
+    }
   };
   
   // Fungsi untuk menambah dokumen pendukung
@@ -163,7 +191,7 @@ const DocumentUpload = ({ formData, formErrors, handleChange }) => {
               id={fieldName}
               name={fieldName}
               className="hidden"
-              onChange={(e) => handleFileChange(e, fieldName)}
+              onChange={(e) => handleLocalFileChange(e, fieldName)}
               accept=".pdf,.jpg,.jpeg,.png"
             />
             <button
@@ -179,8 +207,12 @@ const DocumentUpload = ({ formData, formErrors, handleChange }) => {
           <div className="mt-1 flex items-center p-4 border rounded-md bg-gray-50">
             <FaFileAlt className="text-blue-500 w-6 h-6 mr-3" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
-              <p className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {file.name || (typeof file === 'string' ? file : 'File terpilih')}
+              </p>
+              <p className="text-xs text-gray-500">
+                {file.size ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : ''}
+              </p>
             </div>
             <button
               type="button"

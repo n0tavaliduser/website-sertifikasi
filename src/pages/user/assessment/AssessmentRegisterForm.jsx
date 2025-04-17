@@ -56,6 +56,17 @@ const AssessmentRegisterForm = () => {
   // State untuk validasi form
   const [formErrors, setFormErrors] = useState({});
   
+  // State untuk menyimpan data file sementara
+  const [tempFiles, setTempFiles] = useState({
+    lastDiploma: null,
+    idCard: null,
+    familyCard: null,
+    photo: null,
+    instanceSupport: null,
+    apl01: null,
+    apl02: null
+  });
+  
   // Ambil data instances dari API
   useEffect(() => {
     const fetchInstances = async () => {
@@ -212,41 +223,119 @@ const AssessmentRegisterForm = () => {
   
   // Handle file input change
   const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    
-    if (files && files[0]) {
-      // Validasi ukuran file (max 5MB)
-      if (files[0].size > 5 * 1024 * 1024) {
-        setFormErrors({
-          ...formErrors,
-          [name]: "Ukuran file terlalu besar. Maksimal 5MB"
+    // Cek apakah parameter adalah event atau object dari DocumentUpload.jsx
+    if (e && e.target) {
+      const { name, files, value } = e.target;
+      
+      // Jika ada value yang dikirim langsung (dari DocumentUpload)
+      if (value !== undefined) {
+        setFormData({
+          ...formData,
+          [name]: value
         });
+        
+        // Clear error for this field if it exists
+        if (formErrors[name]) {
+          setFormErrors({
+            ...formErrors,
+            [name]: null
+          });
+        }
+        
         return;
       }
       
-      // Validasi tipe file
-      const validTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-      if (!validTypes.includes(files[0].type)) {
-        setFormErrors({
-          ...formErrors,
-          [name]: "Format file tidak didukung. Gunakan PDF, JPEG, atau PNG"
+      // Case normal di mana files tersedia
+      if (files && files[0]) {
+        // Validasi ukuran file (max 5MB)
+        if (files[0].size > 5 * 1024 * 1024) {
+          setFormErrors({
+            ...formErrors,
+            [name]: "Ukuran file terlalu besar. Maksimal 5MB"
+          });
+          return;
+        }
+        
+        // Validasi tipe file
+        const validTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+        if (!validTypes.includes(files[0].type)) {
+          setFormErrors({
+            ...formErrors,
+            [name]: "Format file tidak didukung. Gunakan PDF, JPEG, atau PNG"
+          });
+          return;
+        }
+        
+        setFormData({
+          ...formData,
+          [name]: files[0]
         });
-        return;
+        
+        // Clear error for this field if it exists
+        if (formErrors[name]) {
+          setFormErrors({
+            ...formErrors,
+            [name]: null
+          });
+        }
       }
-      
-      setFormData({
-        ...formData,
-        [name]: files[0]
-      });
-      
-      // Clear error for this field if it exists
-      if (formErrors[name]) {
-        setFormErrors({
-          ...formErrors,
-          [name]: null
+    } else if (typeof e === 'object') {
+      // Handle case dimana objek dikirim langsung
+      const { fieldName, file } = e;
+      if (fieldName) {
+        setFormData({
+          ...formData,
+          [fieldName]: file
         });
+        
+        // Clear error for this field if it exists
+        if (formErrors[fieldName]) {
+          setFormErrors({
+            ...formErrors,
+            [fieldName]: null
+          });
+        }
       }
     }
+  };
+  
+  // Update tempFiles ketika handleFileChange dipanggil
+  const handleFileChangeWithTempStorage = (e) => {
+    // Panggil handleFileChange asli
+    handleFileChange(e);
+    
+    // Simpan juga ke tempFiles
+    if (e && e.target) {
+      const { name, value, files } = e.target;
+      // Jika files tersedia, gunakan itu
+      if (files && files[0]) {
+        setTempFiles(prev => ({
+          ...prev,
+          [name]: files[0]
+        }));
+      }
+      // Jika value tersedia, gunakan itu
+      else if (value !== undefined) {
+        setTempFiles(prev => ({
+          ...prev,
+          [name]: value
+        }));
+      }
+    }
+  };
+  
+  // Gabungkan data formData dan tempFiles sebelum validasi
+  const mergeFilesBeforeValidation = () => {
+    // Untuk setiap field di tempFiles
+    Object.entries(tempFiles).forEach(([field, value]) => {
+      // Jika field ini null di formData tapi ada di tempFiles
+      if (!formData[field] && value) {
+        setFormData(prev => ({
+          ...prev,
+          [field]: value
+        }));
+      }
+    });
   };
   
   // Handle supporting document file additions
@@ -295,6 +384,37 @@ const AssessmentRegisterForm = () => {
   const validateStep = (step) => {
     let errors = {};
     let isValid = true;
+
+    // Fungsi helper untuk memeriksa apakah file valid
+    const isValidFile = (file) => {
+      // Debug informasi file
+      console.log(`Validasi file:`, file);
+      
+      // File dianggap valid jika:
+      // 1. Bukan null/undefined
+      if (!file) return false;
+      
+      // 2. Jika string dan tidak kosong (URL atau identifier)
+      if (typeof file === 'string' && file.trim().length > 0) return true;
+      
+      // 3. Jika object File atau Blob
+      if (file instanceof File || file instanceof Blob) return true;
+      
+      // 4. Jika object dengan property name atau size
+      if (typeof file === 'object' && (file.name || file.size)) return true;
+      
+      // 5. Jika object dengan property type yang menunjukkan tipe file
+      if (typeof file === 'object' && 
+         (file.type === 'application/pdf' || 
+          file.type === 'image/jpeg' ||
+          file.type === 'image/jpg' ||
+          file.type === 'image/png')) return true;
+      
+      // Kalau semua kondisi di atas tidak terpenuhi, berarti tidak valid
+      return false;
+    };
+
+    console.log('Form Data : ', formData)
     
     switch (step) {
       case 1:
@@ -374,43 +494,67 @@ const AssessmentRegisterForm = () => {
       
       case 3:
         // Validate document uploads
-        if (!formData.lastDiploma) {
-          errors.lastDiploma = "Ijazah terakhir wajib diunggah";
+        const checkFile = (fieldName, errorMessage) => {
+          // Cek di formData dulu
+          if (isValidFile(formData[fieldName])) return true;
+          
+          // Jika tidak ada di formData, cek di tempFiles
+          if (isValidFile(tempFiles[fieldName])) {
+            // Update formData dengan nilai dari tempFiles
+            setFormData(prev => ({
+              ...prev,
+              [fieldName]: tempFiles[fieldName]
+            }));
+            return true;
+          }
+          
+          // Jika tidak ditemukan file yang valid, set error
+          errors[fieldName] = errorMessage;
           isValid = false;
-        }
+          return false;
+        };
         
-        if (!formData.idCard) {
-          errors.idCard = "KTP wajib diunggah";
-          isValid = false;
-        }
+        // Periksa semua dokumen wajib
+        checkFile('lastDiploma', "Ijazah terakhir wajib diunggah");
+        checkFile('idCard', "KTP wajib diunggah");
+        checkFile('familyCard', "Kartu Keluarga wajib diunggah");
+        checkFile('photo', "Pas Foto wajib diunggah");
+        checkFile('instanceSupport', "Surat Dukungan Instansi wajib diunggah");
+        checkFile('apl01', "Dokumen APL 01 wajib diunggah");
         
-        if (!formData.familyCard) {
-          errors.familyCard = "Kartu Keluarga wajib diunggah";
-          isValid = false;
-        }
-        
-        if (!formData.photo) {
-          errors.photo = "Pas Foto wajib diunggah";
-          isValid = false;
-        }
-        
-        if (!formData.instanceSupport) {
-          errors.instanceSupport = "Surat Dukungan Instansi wajib diunggah";
-          isValid = false;
-        }
-        
-        if (!formData.apl01) {
-          errors.apl01 = "Dokumen APL 01 wajib diunggah";
-          isValid = false;
-        }
+        // Debug info
+        console.log("Validasi dokumen:", {
+          formData: {
+            lastDiploma: formData.lastDiploma,
+            idCard: formData.idCard,
+            familyCard: formData.familyCard,
+            photo: formData.photo,
+            instanceSupport: formData.instanceSupport,
+            apl01: formData.apl01,
+          },
+          tempFiles,
+          errors
+        });
         break;
       
       case 4:
         // Validate APL 02
-        if (!formData.apl02) {
+        if (!isValidFile(formData.apl02) && !isValidFile(tempFiles.apl02)) {
           errors.apl02 = "Dokumen APL 02 wajib diunggah";
           isValid = false;
+        } else if (isValidFile(tempFiles.apl02) && !isValidFile(formData.apl02)) {
+          // Update formData dengan nilai dari tempFiles
+          setFormData(prev => ({
+            ...prev,
+            apl02: tempFiles.apl02
+          }));
         }
+        
+        // Debug info
+        console.log("Validasi APL 02:", {
+          apl02: formData.apl02,
+          errors: errors
+        });
         break;
       
       case 5:
@@ -473,6 +617,23 @@ const AssessmentRegisterForm = () => {
   
   // Handle next step
   const handleNextStep = () => {
+    // Debug dokumen sebelum validasi
+    if (currentStep === 3) {
+      console.log("Data dokumen sebelum validasi:", {
+        lastDiploma: formData.lastDiploma,
+        idCard: formData.idCard,
+        familyCard: formData.familyCard,
+        photo: formData.photo,
+        instanceSupport: formData.instanceSupport,
+        apl01: formData.apl01
+      });
+      
+      // Gabungkan data sebelum validasi
+      mergeFilesBeforeValidation();
+      
+      console.log("Temporary files:", tempFiles);
+    }
+    
     if (validateStep(currentStep)) {
       setCurrentStep(currentStep + 1);
     }
@@ -758,7 +919,7 @@ const AssessmentRegisterForm = () => {
             <DocumentUpload 
               formData={formData}
               formErrors={formErrors}
-              handleFileChange={handleFileChange}
+              handleFileChange={handleFileChangeWithTempStorage}
               handleDownloadTemplate={handleDownloadTemplate}
             />
           </div>
@@ -771,7 +932,7 @@ const AssessmentRegisterForm = () => {
             <APL02Upload
               formData={formData}
               formErrors={formErrors}
-              handleFileChange={handleFileChange}
+              handleFileChange={handleFileChangeWithTempStorage}
               handleDownloadTemplate={handleDownloadTemplate}
               handleSupportingDocumentAdd={handleSupportingDocumentAdd}
               handleRemoveSupportingDocument={handleRemoveSupportingDocument}
@@ -843,6 +1004,56 @@ const AssessmentRegisterForm = () => {
       </div>
     );
   };
+  
+  useEffect(() => {
+    // Coba ambil data file dari localStorage saat komponen dimuat
+    try {
+      const savedFileInfo = JSON.parse(localStorage.getItem('assessmentFiles'));
+      if (savedFileInfo) {
+        console.log("Menemukan info file tersimpan:", savedFileInfo);
+        
+        // Update tempFiles state
+        setTempFiles(prev => ({
+          ...prev,
+          ...Object.fromEntries(
+            Object.entries(savedFileInfo).map(([key, info]) => {
+              // Hanya ambil informasi penting seperti name, type, dan lastModified
+              return [key, info ? { 
+                name: info.name, 
+                type: info.type,
+                size: info.size,
+                lastModified: info.lastModified,
+                _savedFromLocalStorage: true
+              } : null];
+            })
+          )
+        }));
+      }
+    } catch (err) {
+      console.error("Error membaca info file dari localStorage:", err);
+    }
+  }, []);
+  
+  // Simpan informasi file ke localStorage setiap kali tempFiles berubah
+  useEffect(() => {
+    try {
+      // Simpan informasi penting saja (tidak bisa menyimpan File object)
+      const fileInfo = Object.fromEntries(
+        Object.entries(tempFiles).map(([key, file]) => {
+          return [key, file ? { 
+            name: file.name, 
+            type: file.type,
+            size: file.size,
+            lastModified: file.lastModified
+          } : null];
+        })
+      );
+      
+      localStorage.setItem('assessmentFiles', JSON.stringify(fileInfo));
+    } catch (err) {
+      console.error("Error menyimpan info file ke localStorage:", err);
+    }
+  }, [tempFiles]);
   
   return (
     <div className="container mx-auto px-4 py-8">
