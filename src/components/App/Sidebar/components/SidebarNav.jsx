@@ -45,50 +45,61 @@ const SidebarNav = () => {
           to="/admin/dashboard" 
           icon={<FiHome />} 
           label="Dashboard" 
+          roleAccess={['admin']}
           isActive={isPathActive('/dashboard', pathname, true)}
         />
         
-        {/* Reports Link */}
+        {/* Partnership Link */}
         <SidebarNavItem 
           to="/admin/partnership" 
           icon={<FiUsers />} 
           label="Partnership" 
+          roleAccess={['admin']}
           isActive={isPathActive('/partnership', pathname)}
         />
         
-        {/* Notifications Link with Badge */}
+        {/* News Link */}
         <SidebarNavItem 
           to="/admin/news" 
           icon={<FiFileText />} 
           label="News" 
+          roleAccess={['admin']}
           isActive={isPathActive('/news', pathname)}
         />
 
+        {/* TUKS Link */}
         <SidebarNavItem 
           to="/admin/tuks" 
           icon={<FiFileText />} 
           label="TUKS" 
+          roleAccess={['admin']}
           isActive={isPathActive("/tuks", pathname)}
         />
 
+        {/* Gallery Link */}
         <SidebarNavItem 
           to="/admin/gallery" 
           icon={<FiImage />} 
           label="Gallery" 
+          roleAccess={['admin']}
           isActive={isPathActive("/gallery", pathname)}
         />
 
+        {/* Instance Link */}
         <SidebarNavItem 
           to="/admin/instance" 
           icon={<FiShield />} 
           label="Instance" 
+          roleAccess={['admin']}
           isActive={isPathActive("/instance", pathname)}
         />
 
+        {/* Schema Link */}
         <SidebarNavItem 
           to="/admin/schema" 
           icon={<FiFileText />} 
           label="Schema" 
+          roleAccess={['admin']}
           isActive={isPathActive("/schema", pathname)}
         />
       </nav>
