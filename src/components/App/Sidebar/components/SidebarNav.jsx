@@ -9,7 +9,8 @@ import {
   FiBell,
   FiShield,
   FiLayers,
-  FiImage
+  FiImage,
+  FiUser
 } from 'react-icons/fi';
 
 import SidebarNavItem from './SidebarNavItem';
@@ -101,6 +102,15 @@ const SidebarNav = () => {
           label="Schema" 
           roleAccess={['admin']}
           isActive={isPathActive("/schema", pathname)}
+        />
+
+        {/* User Link */}
+        <SidebarNavItem 
+          to="/user/assessment" 
+          icon={<FiFileText />} 
+          label="Assessment" 
+          roleAccess={['user']} 
+          isActive={isPathActive("/user/assessment", pathname)}
         />
       </nav>
     </div>
