@@ -20,10 +20,8 @@ export const Login = () => {
     if (token && user) {
       try {
         const userData = JSON.parse(user);
-        if (userData.role === "admin") {
+        if (userData) {
           navigate("/admin/dashboard");
-        } else {
-          navigate("/");
         }
       } catch (e) {
         console.error("Error parsing user data:", e);
