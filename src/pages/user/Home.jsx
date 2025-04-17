@@ -25,18 +25,18 @@ export const Home = () => {
           </div>
           <div className="grid">
             <div className="grid grid-cols-2 place-content-center place-items-center">
-              <div class="grid relative w-32 h-20">
-                <div class="absolute -top-2 -right-2 w-full h-full bg-[#102640] rounded-2xl"></div>
-                <div class="relative z-10 flex flex-col items-center justify-center w-full h-full bg-white rounded-2xl shadow-lg border">
-                  <span class="text-xl font-bold bg-[#EB8317] p-2 rounded-2xl text-white">8,400+</span>
-                  <span class="text-sm text-[#102640] font-bold">Asesi</span>
+              <div className="grid relative w-32 h-20">
+                <div className="absolute -top-2 -right-2 w-full h-full bg-[#102640] rounded-2xl"></div>
+                <div className="relative z-10 flex flex-col items-center justify-center w-full h-full bg-white rounded-2xl shadow-lg border">
+                  <span className="text-xl font-bold bg-[#EB8317] p-2 rounded-2xl text-white">8,400+</span>
+                  <span className="text-sm text-[#102640] font-bold">Asesi</span>
                 </div>
               </div>
-              <div class="grid relative w-32 h-20">
-                <div class="absolute -top-2 -right-2 w-full h-full bg-[#102640] rounded-2xl"></div>
-                <div class="relative z-10 flex flex-col items-center justify-center w-full h-full bg-white rounded-2xl shadow-lg border">
-                  <span class="text-xl font-bold bg-[#EB8317] p-2 rounded-2xl text-white">6,500+</span>
-                  <span class="text-sm text-[#102640] font-bold">Asesor</span>
+              <div className="grid relative w-32 h-20">
+                <div className="absolute -top-2 -right-2 w-full h-full bg-[#102640] rounded-2xl"></div>
+                <div className="relative z-10 flex flex-col items-center justify-center w-full h-full bg-white rounded-2xl shadow-lg border">
+                  <span className="text-xl font-bold bg-[#EB8317] p-2 rounded-2xl text-white">6,500+</span>
+                  <span className="text-sm text-[#102640] font-bold">Asesor</span>
                 </div>
               </div>
             </div>
