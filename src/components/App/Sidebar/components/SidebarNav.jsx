@@ -84,6 +84,13 @@ const SidebarNav = () => {
           label="Instance" 
           isActive={isPathActive("/instance", pathname)}
         />
+
+        <SidebarNavItem 
+          to="/admin/schema" 
+          icon={<FiFileText />} 
+          label="Schema" 
+          isActive={isPathActive("/schema", pathname)}
+        />
       </nav>
     </div>
   );

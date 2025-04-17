@@ -15,6 +15,8 @@ import CreateTuks from "@/pages/admin/tuks/CreateTuks";
 import EditTuks from "@/pages/admin/tuks/EditTuks";
 import GalleryList from "@/pages/admin/gallery/GalleryList";
 import InstanceList from "@/pages/admin/instance/InstanceList";
+import SchemaList from "@/pages/admin/schema/SchemaList";
+import SchemaUnitList from "@/pages/admin/schema/SchemaUnitList";
 import Profile from "@/pages/app/user/Profile";
 
 const { Home, Gallery, Tuks, Berita, Partnership, Tentang, Skema, Kontak } =
@@ -172,6 +174,16 @@ const router = createBrowserRouter([
     {
       path: "instance",
       element: <InstanceList />,
+    },
+
+    // schema
+    {
+      path: "schema",
+      element: <SchemaList />,
+    },
+    {
+      path: "schema/:schemaId/units",
+      element: <SchemaUnitList />,
     },
   ],
 },
