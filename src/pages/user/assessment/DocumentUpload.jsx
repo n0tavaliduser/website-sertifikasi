@@ -1,61 +1,70 @@
-import React, { useState } from 'react';
-import { FaCloudUploadAlt, FaFileAlt, FaTrash, FaExclamationCircle, FaPlus } from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { FaCloudUploadAlt, FaFileAlt, FaTrash, FaExclamationCircle } from 'react-icons/fa';
 
+// Komponen sederhana tanpa ketergantungan pada props handleChange dari parent
 const DocumentUpload = ({ formData, formErrors, handleChange }) => {
-  const [draggedFile, setDraggedFile] = useState(null);
-  
-  const handleDragEnter = (e, fieldName) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDraggedFile(fieldName);
-  };
-  
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDraggedFile(null);
-  };
-  
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-  
-  const handleFileDrop = (e, fieldName) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDraggedFile(null);
-    
-    const files = e.dataTransfer.files;
-    if (files.length) {
-      handleFileUpload(files[0], fieldName);
+  // State lokal untuk menyimpan file yang dipilih
+  const [localFormData, setLocalFormData] = useState({
+    lastDiploma: null,
+    idCard: null,
+    familyCard: null,
+    photo: null,
+    instanceSupport: null,
+    apl01: null,
+    apl02: null,
+    supportingDocuments: []
+  });
+
+  // Update state lokal saat formData berubah
+  useEffect(() => {
+    if (formData) {
+      setLocalFormData({
+        lastDiploma: formData.lastDiploma || null,
+        idCard: formData.idCard || null,
+        familyCard: formData.familyCard || null,
+        photo: formData.photo || null,
+        instanceSupport: formData.instanceSupport || null,
+        apl01: formData.apl01 || null,
+        apl02: formData.apl02 || null,
+        supportingDocuments: formData.supportingDocuments || []
+      });
     }
-  };
-  
-  const handleSupportingDocumentDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDraggedFile(null);
-    
-    const files = e.dataTransfer.files;
-    if (files.length) {
-      const newFiles = Array.from(files);
-      const updatedFiles = [...formData.supportingDocuments, ...newFiles];
-      
-      handleChange({
-        target: {
-          name: 'supportingDocuments',
-          value: updatedFiles
+  }, [formData]);
+
+  // Fungsi untuk menyinkronkan data lokal dengan parent component
+  useEffect(() => {
+    // Jika handleChange adalah fungsi, update data ke parent
+    if (typeof handleChange === 'function') {
+      // Sinkronisasi untuk setiap field
+      Object.keys(localFormData).forEach(fieldName => {
+        const value = localFormData[fieldName];
+        if (formData && formData[fieldName] !== value) {
+          try {
+            const eventObj = {
+              target: {
+                name: fieldName,
+                value: value
+              }
+            };
+            handleChange(eventObj);
+          } catch (err) {
+            console.log(`Gagal menyinkronkan ${fieldName}:`, err);
+          }
         }
       });
     }
-  };
-  
-  const handleFileUpload = (file, fieldName) => {
+  }, [localFormData, handleChange, formData]);
+
+  // Fungsi sederhana untuk menangani upload file
+  const handleFileChange = (e, fieldName) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
     // Validasi tipe file (PDF, JPG, JPEG, PNG)
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
     if (!allowedTypes.includes(file.type)) {
       alert('Tipe file tidak didukung. Silakan unggah file dalam format PDF, JPG, JPEG, atau PNG.');
+      e.target.value = ''; // Reset input
       return;
     }
     
@@ -63,80 +72,108 @@ const DocumentUpload = ({ formData, formErrors, handleChange }) => {
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
       alert('Ukuran file terlalu besar. Maksimal 5MB.');
+      e.target.value = ''; // Reset input
       return;
     }
     
-    handleChange({
-      target: {
-        name: fieldName,
-        value: file
-      }
-    });
+    // Update ke state lokal
+    setLocalFormData(prevData => ({
+      ...prevData,
+      [fieldName]: file
+    }));
   };
   
+  // Fungsi untuk menghapus file
   const removeFile = (fieldName) => {
-    handleChange({
-      target: {
-        name: fieldName,
-        value: null
-      }
-    });
+    setLocalFormData(prevData => ({
+      ...prevData,
+      [fieldName]: null
+    }));
   };
   
-  const removeSupportingDocument = (index) => {
-    const updatedFiles = [...formData.supportingDocuments];
-    updatedFiles.splice(index, 1);
+  // Fungsi untuk menambah dokumen pendukung
+  const addSupportingDocuments = (e) => {
+    if (!e.target.files.length) return;
     
-    handleChange({
-      target: {
-        name: 'supportingDocuments',
-        value: updatedFiles
+    const newFiles = Array.from(e.target.files);
+    
+    // Validasi tipe dan ukuran file
+    let validFiles = true;
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    
+    newFiles.forEach(file => {
+      if (!allowedTypes.includes(file.type)) {
+        alert(`File "${file.name}" tidak didukung. Silakan unggah file dalam format PDF, JPG, JPEG, atau PNG.`);
+        validFiles = false;
+        return;
       }
+      
+      if (file.size > maxSize) {
+        alert(`File "${file.name}" terlalu besar. Maksimal 5MB.`);
+        validFiles = false;
+        return;
+      }
+    });
+    
+    if (!validFiles) {
+      e.target.value = '';
+      return;
+    }
+    
+    setLocalFormData(prevData => ({
+      ...prevData,
+      supportingDocuments: [...prevData.supportingDocuments, ...newFiles]
+    }));
+    
+    // Reset input
+    e.target.value = '';
+  };
+  
+  // Fungsi untuk menghapus dokumen pendukung
+  const removeSupportingDocument = (index) => {
+    setLocalFormData(prevData => {
+      const updatedFiles = [...prevData.supportingDocuments];
+      updatedFiles.splice(index, 1);
+      return {
+        ...prevData,
+        supportingDocuments: updatedFiles
+      };
     });
   };
   
-  const renderDocumentUpload = (fieldName, label, isRequired = true) => {
-    const file = formData[fieldName];
-    const error = formErrors[fieldName];
+  // Render dokumen
+  const renderDocument = (fieldName, label, isRequired = true) => {
+    // Gunakan data dari state lokal
+    const file = localFormData[fieldName];
+    const error = formErrors && formErrors[fieldName];
     
     return (
       <div className="mt-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor={fieldName} className="block text-sm font-medium text-gray-700 mb-1">
           {label} {isRequired && <span className="text-red-500">*</span>}
         </label>
         
         {!file ? (
-          <div 
-            className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md 
-              ${draggedFile === fieldName ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'} 
-              ${error ? 'border-red-300' : ''}`}
-            onDragEnter={(e) => handleDragEnter(e, fieldName)}
-            onDragLeave={handleDragLeave}
-            onDragOver={handleDragOver}
-            onDrop={(e) => handleFileDrop(e, fieldName)}
-          >
-            <div className="space-y-1 text-center">
-              <FaCloudUploadAlt className="mx-auto h-10 w-10 text-gray-400" />
-              <div className="flex text-sm text-gray-600">
-                <label htmlFor={fieldName} className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
-                  <span>Unggah file</span>
-                  <input
-                    id={fieldName}
-                    name={fieldName}
-                    type="file"
-                    className="sr-only"
-                    onChange={(e) => {
-                      if (e.target.files.length) {
-                        handleFileUpload(e.target.files[0], fieldName);
-                      }
-                    }}
-                    accept=".pdf,.jpg,.jpeg,.png"
-                  />
-                </label>
-                <p className="pl-1">atau tarik dan letakkan</p>
-              </div>
-              <p className="text-xs text-gray-500">PDF, JPG, JPEG, PNG hingga 5MB</p>
-            </div>
+          <div className="relative flex flex-col items-center mt-1 p-4 border-2 border-dashed rounded-md border-gray-300 bg-gray-50">
+            <FaCloudUploadAlt className="mx-auto h-10 w-10 text-gray-400 mb-2" />
+            <p className="text-sm text-gray-600 mb-2">Klik tombol di bawah untuk memilih file</p>
+            <input
+              type="file"
+              id={fieldName}
+              name={fieldName}
+              className="hidden"
+              onChange={(e) => handleFileChange(e, fieldName)}
+              accept=".pdf,.jpg,.jpeg,.png"
+            />
+            <button
+              type="button"
+              onClick={() => document.getElementById(fieldName).click()}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+            >
+              Pilih File
+            </button>
+            <p className="text-xs text-gray-500 mt-1">PDF, JPG, JPEG, PNG hingga 5MB</p>
           </div>
         ) : (
           <div className="mt-1 flex items-center p-4 border rounded-md bg-gray-50">
@@ -148,7 +185,7 @@ const DocumentUpload = ({ formData, formErrors, handleChange }) => {
             <button
               type="button"
               onClick={() => removeFile(fieldName)}
-              className="ml-4 flex-shrink-0 text-red-500 hover:text-red-700"
+              className="ml-4 text-red-500 hover:text-red-700"
             >
               <FaTrash className="w-4 h-4" />
             </button>
@@ -164,7 +201,7 @@ const DocumentUpload = ({ formData, formErrors, handleChange }) => {
       </div>
     );
   };
-  
+
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">Unggah Dokumen</h2>
@@ -181,63 +218,46 @@ const DocumentUpload = ({ formData, formErrors, handleChange }) => {
           <h3 className="text-lg font-medium">Dokumen Wajib</h3>
           <p className="text-sm text-gray-500 mt-1">Semua dokumen berikut harus diunggah</p>
           
-          {renderDocumentUpload('lastDiploma', 'Ijazah Terakhir')}
-          {renderDocumentUpload('idCard', 'KTP')}
-          {renderDocumentUpload('familyCard', 'Kartu Keluarga')}
-          {renderDocumentUpload('photo', 'Pas Foto (Latar Belakang Merah)')}
-          {renderDocumentUpload('instanceSupport', 'Surat Dukungan Instansi')}
-          {renderDocumentUpload('apl01', 'APL 01 (Formulir Permohonan Sertifikasi Kompetensi)')}
-          {renderDocumentUpload('apl02', 'APL 02 (Asesmen Mandiri)')}
+          {renderDocument('lastDiploma', 'Ijazah Terakhir')}
+          {renderDocument('idCard', 'KTP')}
+          {renderDocument('familyCard', 'Kartu Keluarga')}
+          {renderDocument('photo', 'Pas Foto (Latar Belakang Merah)')}
+          {renderDocument('instanceSupport', 'Surat Dukungan Instansi')}
+          {renderDocument('apl01', 'APL 01 (Formulir Permohonan Sertifikasi Kompetensi)')}
+          {renderDocument('apl02', 'APL 02 (Asesmen Mandiri)')}
         </div>
         
         <div className="pt-4 border-t">
           <h3 className="text-lg font-medium">Dokumen Pendukung</h3>
           <p className="text-sm text-gray-500 mt-1">Unggah dokumen pendukung (opsional)</p>
           
-          <div 
-            className={`mt-4 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md 
-              ${draggedFile === 'supportingDocuments' ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}`}
-            onDragEnter={(e) => handleDragEnter(e, 'supportingDocuments')}
-            onDragLeave={handleDragLeave}
-            onDragOver={handleDragOver}
-            onDrop={handleSupportingDocumentDrop}
-          >
-            <div className="space-y-1 text-center">
-              <FaCloudUploadAlt className="mx-auto h-10 w-10 text-gray-400" />
-              <div className="flex text-sm text-gray-600">
-                <label htmlFor="supportingDocuments" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
-                  <span>Unggah dokumen pendukung</span>
-                  <input
-                    id="supportingDocuments"
-                    name="supportingDocuments"
-                    type="file"
-                    className="sr-only"
-                    onChange={(e) => {
-                      if (e.target.files.length) {
-                        const newFiles = Array.from(e.target.files);
-                        const updatedFiles = [...formData.supportingDocuments, ...newFiles];
-                        
-                        handleChange({
-                          target: {
-                            name: 'supportingDocuments',
-                            value: updatedFiles
-                          }
-                        });
-                      }
-                    }}
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    multiple
-                  />
-                </label>
-                <p className="pl-1">atau tarik dan letakkan</p>
-              </div>
-              <p className="text-xs text-gray-500">PDF, JPG, JPEG, PNG hingga 5MB per file</p>
+          <div className="mt-4 p-4 border-2 border-dashed rounded-md border-gray-300 bg-gray-50">
+            <div className="flex flex-col items-center">
+              <FaCloudUploadAlt className="mx-auto h-10 w-10 text-gray-400 mb-2" />
+              <p className="text-sm text-gray-600 mb-2">Klik tombol di bawah untuk memilih dokumen pendukung</p>
+              <input
+                type="file"
+                id="supportingDocuments"
+                name="supportingDocuments"
+                className="hidden"
+                onChange={addSupportingDocuments}
+                accept=".pdf,.jpg,.jpeg,.png"
+                multiple
+              />
+              <button
+                type="button"
+                onClick={() => document.getElementById('supportingDocuments').click()}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+              >
+                Pilih Dokumen Pendukung
+              </button>
+              <p className="text-xs text-gray-500 mt-1">PDF, JPG, JPEG, PNG hingga 5MB per file</p>
             </div>
           </div>
           
-          {formData.supportingDocuments.length > 0 && (
+          {localFormData.supportingDocuments.length > 0 && (
             <div className="mt-4 border rounded-md divide-y">
-              {formData.supportingDocuments.map((file, index) => (
+              {localFormData.supportingDocuments.map((file, index) => (
                 <div key={index} className="flex items-center p-3">
                   <FaFileAlt className="text-blue-500 w-5 h-5 mr-3" />
                   <div className="flex-1 min-w-0">
@@ -247,7 +267,7 @@ const DocumentUpload = ({ formData, formErrors, handleChange }) => {
                   <button
                     type="button"
                     onClick={() => removeSupportingDocument(index)}
-                    className="ml-4 flex-shrink-0 text-red-500 hover:text-red-700"
+                    className="ml-4 text-red-500 hover:text-red-700"
                   >
                     <FaTrash className="w-4 h-4" />
                   </button>

@@ -85,6 +85,8 @@ const Assessment = () => {
   
   // Handler untuk perubahan data form
   const handleChange = (e) => {
+    if (!e || !e.target) return;
+    
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -100,9 +102,40 @@ const Assessment = () => {
     }
   };
   
+  // Wrapper untuk handleChange untuk memastikan format parameter yang konsisten
+  const handleDocumentChange = (e) => {
+    if (!e || !e.target) {
+      console.error('Invalid event parameter in handleDocumentChange');
+      return;
+    }
+    
+    const { name, value } = e.target;
+    
+    // Log data untuk debugging
+    console.log(`Updating document: ${name}`, value);
+    
+    // Update formData langsung
+    setFormData(prevData => {
+      const newData = {
+        ...prevData,
+        [name]: value
+      };
+      return newData;
+    });
+    
+    // Clear error untuk field yang diubah
+    if (formErrors[name]) {
+      setFormErrors(prevErrors => ({
+        ...prevErrors,
+        [name]: ''
+      }));
+    }
+  };
+  
   // Validasi form berdasarkan langkah
   const validateStep = (step) => {
     const errors = {};
+    console.log("Validating step", step, formData);
     
     if (step === 1) {
       // Validate personal data
@@ -123,18 +156,37 @@ const Assessment = () => {
       // Validate scheme data
       if (!formData.schemaId) errors.schemaId = 'Skema sertifikasi wajib dipilih';
       if (!formData.assessmentPurpose) errors.assessmentPurpose = 'Tujuan asesmen wajib dipilih';
-      if (formData.assessmentPurpose === 'resertifikasi' && !formData.certificateNumber.trim()) {
+      if (formData.assessmentPurpose === 'resertifikasi' && !formData.certificateNumber?.trim()) {
         errors.certificateNumber = 'Nomor sertifikat sebelumnya wajib diisi';
       }
     } else if (step === 3) {
-      // Validasi dokumen
-      if (!formData.lastDiploma) errors.lastDiploma = 'Ijazah terakhir harus diunggah';
-      if (!formData.idCard) errors.idCard = 'KTP harus diunggah';
-      if (!formData.familyCard) errors.familyCard = 'Kartu keluarga harus diunggah';
-      if (!formData.photo) errors.photo = 'Pas foto harus diunggah';
-      if (!formData.instanceSupport) errors.instanceSupport = 'Surat dukungan instansi harus diunggah';
-      if (!formData.apl01) errors.apl01 = 'APL 01 harus diunggah';
-      if (!formData.apl02) errors.apl02 = 'APL 02 harus diunggah';
+      // Validasi dokumen - lebih fleksibel
+      // Periksa apakah ada objek pada properti (ada file yang diupload)
+      if (!formData.lastDiploma) {
+        errors.lastDiploma = 'Ijazah terakhir harus diunggah';
+      }
+      if (!formData.idCard) {
+        errors.idCard = 'KTP harus diunggah';
+      }
+      if (!formData.familyCard) {
+        errors.familyCard = 'Kartu keluarga harus diunggah';
+      }
+      if (!formData.photo) {
+        errors.photo = 'Pas foto harus diunggah';
+      }
+      if (!formData.instanceSupport) {
+        errors.instanceSupport = 'Surat dukungan instansi harus diunggah';
+      }
+      if (!formData.apl01) {
+        errors.apl01 = 'APL 01 harus diunggah';
+      }
+      if (!formData.apl02) {
+        errors.apl02 = 'APL 02 harus diunggah';
+      }
+
+      // Log validasi dokumen untuk debugging
+      console.log("Validasi dokumen:", errors);
+      
     } else if (step === 4) {
       // Validasi konfirmasi
       if (!formData.dataCorrect) errors.dataCorrect = 'Anda harus menyetujui kebenaran data';
@@ -146,32 +198,50 @@ const Assessment = () => {
   
   // Pindah ke langkah berikutnya
   const handleNext = () => {
+    console.log("Current step before next:", currentStep);
     const errors = validateStep(currentStep);
     if (Object.keys(errors).length === 0) {
-      setCurrentStep(currentStep + 1);
-      window.scrollTo(0, 0);
+      // Hanya ganti langkah jika dalam range yang valid
+      if (currentStep < totalSteps) {
+        setCurrentStep(currentStep + 1);
+        window.scrollTo(0, 0);
+        console.log("Moving to step:", currentStep + 1);
+      }
     } else {
+      console.log("Validation errors:", errors);
       setFormErrors(errors);
+      // Tampilkan toast error
+      toast.error('Mohon lengkapi semua field yang diperlukan');
     }
   };
   
   // Kembali ke langkah sebelumnya
   const handlePrevious = () => {
-    setCurrentStep(currentStep - 1);
-    window.scrollTo(0, 0);
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+      window.scrollTo(0, 0);
+    }
   };
   
   // Submit data asesmen
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validasi form terakhir
     const errors = validateStep(currentStep);
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
+      toast.error('Mohon lengkapi semua field yang diperlukan');
       return;
     }
     
-    setLoading(true);
+    // Cek apakah ini adalah langkah terakhir, jika bukan maka lanjut ke langkah berikutnya
+    if (currentStep < totalSteps) {
+      handleNext();
+      return;
+    }
+    
+    setSubmitting(true);
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -201,7 +271,7 @@ const Assessment = () => {
       console.error('Error submitting assessment:', error);
       toast.error(error.message || 'Terjadi kesalahan saat mengirim pendaftaran asesmen');
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
   
@@ -213,7 +283,7 @@ const Assessment = () => {
       case 2:
         return <Scheme formData={formData} formErrors={formErrors} handleChange={handleChange} />;
       case 3:
-        return <DocumentUpload formData={formData} formErrors={formErrors} handleChange={handleChange} />;
+        return <DocumentUpload formData={formData} formErrors={formErrors} handleChange={handleDocumentChange} />;
       case 4:
         return <Confirmation formData={formData} formErrors={formErrors} handleChange={handleChange} />;
       default:
@@ -262,14 +332,43 @@ const Assessment = () => {
                 <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
                   currentStep >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
                 }`}>
-                  2
+                  {currentStep > 2 ? <FaCheck /> : 2}
                 </div>
                 <div className="text-sm font-medium ml-2">Pilihan Skema</div>
+              </div>
+              
+              <div className={`flex-1 h-1 mx-4 ${currentStep >= 3 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
+              
+              <div className="flex items-center">
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
+                  currentStep >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+                }`}>
+                  {currentStep > 3 ? <FaCheck /> : 3}
+                </div>
+                <div className="text-sm font-medium ml-2">Dokumen</div>
+              </div>
+              
+              <div className={`flex-1 h-1 mx-4 ${currentStep >= 4 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
+              
+              <div className="flex items-center">
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
+                  currentStep >= 4 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+                }`}>
+                  4
+                </div>
+                <div className="text-sm font-medium ml-2">Konfirmasi</div>
               </div>
             </div>
           </div>
           
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            if (currentStep < totalSteps) {
+              handleNext();
+            } else {
+              handleSubmit(e);
+            }
+          }}>
             {renderStepContent()}
             
             <div className="mt-8 flex justify-between">
@@ -283,7 +382,7 @@ const Assessment = () => {
                 </button>
               )}
               
-              {currentStep < 2 ? (
+              {currentStep < totalSteps ? (
                 <button
                   type="button"
                   onClick={handleNext}
@@ -294,10 +393,10 @@ const Assessment = () => {
               ) : (
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={submitting}
                   className="ml-auto px-6 py-2 bg-green-600 rounded-md text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center"
                 >
-                  {loading ? (
+                  {submitting ? (
                     <>
                       <FaSpinner className="animate-spin mr-2" /> Memproses...
                     </>
