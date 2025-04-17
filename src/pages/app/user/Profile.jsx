@@ -79,7 +79,6 @@ const Profile = () => {
             name: result.data.name || "",
             phone_number: result.data.phone_number || "",
             address: result.data.address || "",
-            instance_id: result.data.instance_id ? result.data.instance_id.toString() : ""
           });
         }
       } catch (error) {
@@ -94,7 +93,6 @@ const Profile = () => {
               name: userData.name || "",
               phone_number: userData.phone_number || "",
               address: userData.address || "",
-              instance_id: userData.instance_id ? userData.instance_id.toString() : ""
             });
           }
         } catch (localStorageError) {
@@ -116,17 +114,6 @@ const Profile = () => {
     // Hapus error untuk field yang diubah
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: null }));
-    }
-  };
-
-  // Handle perubahan select
-  const handleSelectChange = (value) => {
-    // Jika nilai adalah "0", kita set instance_id menjadi string kosong
-    setFormData(prev => ({ ...prev, instance_id: value === "0" ? "" : value }));
-    
-    // Hapus error untuk field instance_id
-    if (errors.instance_id) {
-      setErrors(prev => ({ ...prev, instance_id: null }));
     }
   };
 
@@ -275,45 +262,6 @@ const Profile = () => {
               />
               {errors.address && (
                 <p className="text-sm text-red-500">{errors.address}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="instance_id">
-                <div className="flex items-center gap-2">
-                  <FiHome className="text-gray-500" />
-                  <span>Instansi</span>
-                </div>
-              </Label>
-              <Select 
-                value={formData.instance_id || "0"} 
-                onValueChange={handleSelectChange}
-              >
-                <SelectTrigger 
-                  id="instance_id"
-                  className={errors.instance_id ? "border-red-500" : ""}
-                >
-                  <SelectValue placeholder="Pilih instansi" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">-- Pilih Instansi --</SelectItem>
-                  {instancesLoading ? (
-                    <SelectItem value="loading" disabled>
-                      <div className="flex items-center gap-2">
-                        <Spinner size="sm" /> Memuat data...
-                      </div>
-                    </SelectItem>
-                  ) : (
-                    instances.map((instance) => (
-                      <SelectItem key={instance.id} value={instance.id.toString()}>
-                        {instance.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-              {errors.instance_id && (
-                <p className="text-sm text-red-500">{errors.instance_id}</p>
               )}
             </div>
           </CardContent>
