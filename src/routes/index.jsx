@@ -5,6 +5,7 @@ import IconLoading from "@/components/Loading";
 import NewsDetail from "@/components/DetailNews";
 import CategoryTable from "@/components/CategoryTable";
 import AuthLogin from "@/pages/user/Auth.Login";
+import AuthRegister from "@/pages/user/Auth.Register";
 import AppLayout from "@/layouts/app/AppLayout";
 import PartnershipList from "@/pages/admin/partnership/PartnershipList";
 import NewsList from "@/pages/admin/news/NewsList";
@@ -107,6 +108,14 @@ const router = createBrowserRouter([
     element: (
       <Suspense fallback={<IconLoading />}>
         <AuthLogin />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/auth/register",
+    element: (
+      <Suspense fallback={<IconLoading />}>
+        <AuthRegister />
       </Suspense>
     ),
   },

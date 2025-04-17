@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { FaEnvelope, FaLock, FaSpinner } from "react-icons/fa";
@@ -153,7 +153,7 @@ export const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#00002F] text-white py-2 rounded-2xl transition flex items-center justify-center"
+              className="w-full bg-[#00002F] text-white py-2 rounded-2xl transition flex items-center justify-center mb-4"
             >
               {loading ? (
                 <>
@@ -164,6 +164,13 @@ export const Login = () => {
                 "Masuk"
               )}
             </button>
+            
+            <div className="text-center text-sm">
+              Belum memiliki akun?{" "}
+              <Link to="/auth/register" className="text-blue-600 hover:underline">
+                Daftar disini
+              </Link>
+            </div>
           </form>
         </div>
       </div>
