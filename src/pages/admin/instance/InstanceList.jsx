@@ -277,13 +277,13 @@ const InstanceList = () => {
         </div>
       ) : (
         <div className="overflow-x-auto rounded-lg border">
-          <Table>
-            <TableHeader>
+          <Table className="bg-white">
+            <TableHeader className="bg-gray-100">
               <TableRow>
-                <TableHead className="w-[60px] text-center">No</TableHead>
-                <TableHead>Nama Instance</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead className="w-[120px] text-right">Aksi</TableHead>
+                <TableHead className="w-[60px] text-center font-bold text-gray-500">No</TableHead>
+                <TableHead className="font-bold text-gray-500">Nama Instance</TableHead>
+                <TableHead className="font-bold text-gray-500">Slug</TableHead>
+                <TableHead className="w-[120px] text-right font-bold text-gray-500">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
