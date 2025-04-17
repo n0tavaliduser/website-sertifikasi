@@ -15,6 +15,7 @@ const AssessmentRegisterForm = () => {
   const [instances, setInstances] = useState([]);
   const [schemas, setSchemas] = useState([]);
   const [assessmentDates, setAssessmentDates] = useState([]);
+  const [userDataLoaded, setUserDataLoaded] = useState(false);
   
   // State untuk data formulir
   const [formData, setFormData] = useState({
@@ -139,6 +140,58 @@ const AssessmentRegisterForm = () => {
     
     generateDates();
   }, []);
+  
+  // Ambil data pengguna dari API
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (userDataLoaded) return; // Hindari pengambilan berulang
+
+      try {
+        setLoading(true);
+        const API_URL = import.meta.env.VITE_API_URL || window.ENV_API_URL || "http://localhost:8000/api";
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+          console.error('Token tidak ditemukan');
+          return;
+        }
+        
+        const response = await fetch(`${API_URL}/user-details`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Gagal mengambil data pengguna');
+        }
+        
+        const data = await response.json();
+        console.log('Data pengguna berhasil diambil:', data);
+        
+        // Auto-fill data formulir dengan data pengguna
+        if (data && data.data) {
+          const userData = data.data;
+          setFormData(prevData => ({
+            ...prevData,
+            fullName: userData.name || prevData.fullName,
+            email: userData.email || prevData.email,
+            phoneNumber: userData.phone_number || prevData.phoneNumber,
+            address: userData.address || prevData.address
+          }));
+          setUserDataLoaded(true);
+        }
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+        setError('Gagal memuat data pengguna. Data akan diisi manual.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUserData();
+  }, [userDataLoaded]);
   
   // Handle input text/select change
   const handleInputChange = (e) => {
