@@ -115,6 +115,15 @@ const SidebarNav = () => {
           isActive={isPathActive("/app/assessee", pathname)}
         />
       </nav>
+
+      <div className="mt-auto">
+        <SidebarNavItem 
+          to="/app/certificate" 
+          icon={<FiFileText />} 
+          label="Certificate" 
+          roleAccess={['admin', 'user']}
+        />
+      </div>
     </div>
   );
 };

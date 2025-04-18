@@ -22,6 +22,8 @@ import Profile from "@/pages/app/user/Profile";
 import AssessmentRegisterForm from "@/pages/user/assessment/AssessmentRegisterForm";
 import AssessmentList from "@/pages/app/assessment/AssessmentList";
 import EditAssessment from "@/pages/app/assessment/EditAssessment";
+import CertificateList from "@/pages/app/certificate/CertificateList";
+import AssignAssesseeCertificate from "@/pages/app/certificate/AssignAssesseeCertificate";
 
 const { Home, Gallery, Tuks, Berita, Partnership, Tentang, Skema, Kontak } =
   lazily(() => import("@/pages/user"));
@@ -224,6 +226,14 @@ const router = createBrowserRouter([
     {
       path: "assessee/:id/edit",
       element: <EditAssessment />,
+    },
+    {
+      path: "certificate",
+      element: <CertificateList />,
+    },
+    {
+      path: "certificate/assign/:id",
+      element: <AssignAssesseeCertificate />,
     },
   ],
 },
