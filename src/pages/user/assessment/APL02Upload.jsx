@@ -184,7 +184,11 @@ const APL02Upload = ({
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => handleDownloadTemplate('apl01')}
+                onClick={(e) => {
+                  e.preventDefault(); // Mencegah form submit
+                  e.stopPropagation(); // Mencegah event bubbling
+                  handleDownloadTemplate('apl01');
+                }}
                 className="flex items-center px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
               >
                 <FaFileDownload className="mr-2" />
@@ -201,7 +205,11 @@ const APL02Upload = ({
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => handleDownloadTemplate('apl02_observasi')}
+                onClick={(e) => {
+                  e.preventDefault(); // Mencegah form submit
+                  e.stopPropagation(); // Mencegah event bubbling
+                  handleDownloadTemplate('apl02', 'observation');
+                }}
                 className={`flex items-center px-4 py-2 rounded-md ${
                   formData.certificationMethod === 'observasi'
                     ? 'bg-blue-600 text-white hover:bg-blue-700'
@@ -228,7 +236,11 @@ const APL02Upload = ({
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => handleDownloadTemplate('apl02_portofolio')}
+                onClick={(e) => {
+                  e.preventDefault(); // Mencegah form submit
+                  e.stopPropagation(); // Mencegah event bubbling
+                  handleDownloadTemplate('apl02', 'portofolio');
+                }}
                 className={`flex items-center px-4 py-2 rounded-md ${
                   formData.certificationMethod === 'portofolio'
                     ? 'bg-blue-600 text-white hover:bg-blue-700'
