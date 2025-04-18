@@ -520,7 +520,6 @@ const AssessmentRegisterForm = () => {
         checkFile('familyCard', "Kartu Keluarga wajib diunggah");
         checkFile('photo', "Pas Foto wajib diunggah");
         checkFile('instanceSupport', "Surat Dukungan Instansi wajib diunggah");
-        checkFile('apl01', "Dokumen APL 01 wajib diunggah");
         
         // Debug info
         console.log("Validasi dokumen:", {
@@ -530,7 +529,6 @@ const AssessmentRegisterForm = () => {
             familyCard: formData.familyCard,
             photo: formData.photo,
             instanceSupport: formData.instanceSupport,
-            apl01: formData.apl01,
           },
           tempFiles,
           errors

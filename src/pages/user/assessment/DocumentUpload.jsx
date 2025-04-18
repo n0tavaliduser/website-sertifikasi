@@ -10,8 +10,6 @@ const DocumentUpload = ({ formData, formErrors, handleChange, handleFileChange, 
     familyCard: null,
     photo: null,
     instanceSupport: null,
-    apl01: null,
-    apl02: null,
     supportingDocuments: []
   });
 
@@ -27,8 +25,6 @@ const DocumentUpload = ({ formData, formErrors, handleChange, handleFileChange, 
         familyCard: formData.familyCard || null,
         photo: formData.photo || null,
         instanceSupport: formData.instanceSupport || null,
-        apl01: formData.apl01 || null,
-        apl02: formData.apl02 || null,
         supportingDocuments: formData.supportingDocuments || []
       });
     }
@@ -255,8 +251,6 @@ const DocumentUpload = ({ formData, formErrors, handleChange, handleFileChange, 
           {renderDocument('familyCard', 'Kartu Keluarga')}
           {renderDocument('photo', 'Pas Foto (Latar Belakang Merah)')}
           {renderDocument('instanceSupport', 'Surat Dukungan Instansi')}
-          {renderDocument('apl01', 'APL 01 (Formulir Permohonan Sertifikasi Kompetensi)')}
-          {renderDocument('apl02', 'APL 02 (Asesmen Mandiri)')}
         </div>
         
         <div className="pt-4 border-t">

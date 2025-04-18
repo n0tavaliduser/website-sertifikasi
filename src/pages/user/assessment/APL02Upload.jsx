@@ -1,5 +1,5 @@
-import React from 'react';
-import { FaFileUpload, FaFileDownload, FaTrash, FaPlus } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaFileUpload, FaFileDownload, FaTrash, FaPlus, FaExclamationCircle } from 'react-icons/fa';
 
 const APL02Upload = ({ 
   formData, 
@@ -9,25 +9,57 @@ const APL02Upload = ({
   handleSupportingDocumentAdd,
   handleRemoveSupportingDocument
 }) => {
+  const [localFormData, setLocalFormData] = useState({
+    apl01: null,
+    apl02: null
+  });
+
+  // Update state lokal saat formData berubah
+  useEffect(() => {
+    if (formData) {
+      setLocalFormData({
+        apl01: formData.apl01 || null,
+        apl02: formData.apl02 || null
+      });
+    }
+  }, [formData]);
+
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold">APL 02 (Asesmen Mandiri)</h2>
+      <h2 className="text-xl font-semibold">Dokumen APL</h2>
       
       <div className="bg-blue-50 p-4 rounded-md mb-6">
-        <h3 className="font-semibold text-blue-700 mb-2">Petunjuk Pengisian APL 02</h3>
+        <h3 className="font-semibold text-blue-700 mb-2">Petunjuk Pengisian Dokumen APL</h3>
         <ul className="list-disc pl-5 text-sm text-blue-800">
-          <li>Unduh template APL 02 sesuai metode yang Anda pilih (Observasi/Portofolio)</li>
-          <li>Isi formulir sesuai dengan instruksi dan pengalaman Anda</li>
+          <li>APL 01 adalah Formulir Permohonan Sertifikasi Kompetensi</li>
+          <li>APL 02 adalah dokumen Asesmen Mandiri sesuai dengan skema yang dipilih</li>
+          <li>Unduh template yang disediakan, isi sesuai dengan instruksi</li>
           <li>Lengkapi dengan tanda tangan dan tanggal pada bagian akhir</li>
           <li>Upload kembali dokumen yang sudah diisi</li>
-          <li>Tambahkan dokumen pendukung yang relevan</li>
         </ul>
       </div>
       
       <div className="space-y-6">
-        <h3 className="font-medium mb-3">Template APL 02</h3>
+        <h3 className="font-medium mb-3">Template APL</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Template APL 01 */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              APL 01 - Formulir Permohonan
+            </label>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => handleDownloadTemplate('apl01')}
+                className="flex items-center px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+              >
+                <FaFileDownload className="mr-2" />
+                Unduh Template
+              </button>
+            </div>
+          </div>
+          
           {/* Template APL 02 Metode Observasi */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
@@ -85,13 +117,51 @@ const APL02Upload = ({
       </div>
       
       <div className="space-y-6 mt-8">
-        <h3 className="font-medium mb-3">Upload APL 02</h3>
+        <h3 className="font-medium mb-3">Upload Dokumen APL</h3>
         
         <div className="space-y-4">
+          {/* Upload APL 01 */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Upload APL 01 (Formulir Permohonan) <span className="text-red-500">*</span>
+            </label>
+            <div className="flex items-center">
+              <label className={`flex items-center justify-center w-full px-4 py-2 border border-dashed rounded-md cursor-pointer ${formErrors.apl01 ? 'border-red-500' : 'border-gray-300'}`}>
+                <div className="space-y-1 text-center">
+                  <FaFileUpload className="mx-auto h-6 w-6 text-gray-400" />
+                  <div className="text-sm text-gray-500">
+                    <span className="font-medium text-blue-600 hover:underline">
+                      Pilih file
+                    </span>
+                    {localFormData.apl01 ? (
+                      <p className="text-xs">{typeof localFormData.apl01 === 'object' && localFormData.apl01.name ? localFormData.apl01.name : 'File terpilih'}</p>
+                    ) : (
+                      <p className="text-xs">PDF (Maks. 5MB)</p>
+                    )}
+                  </div>
+                </div>
+                <input
+                  id="apl01"
+                  name="apl01"
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange}
+                  accept=".pdf"
+                />
+              </label>
+            </div>
+            {formErrors.apl01 && (
+              <p className="text-sm text-red-500 flex items-center">
+                <FaExclamationCircle className="w-3 h-3 mr-1" />
+                {formErrors.apl01}
+              </p>
+            )}
+          </div>
+          
           {/* Upload APL 02 */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Upload APL 02 Terisi <span className="text-red-500">*</span>
+              Upload APL 02 (Asesmen Mandiri) <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center">
               <label className={`flex items-center justify-center w-full px-4 py-2 border border-dashed rounded-md cursor-pointer ${formErrors.apl02 ? 'border-red-500' : 'border-gray-300'}`}>
@@ -101,8 +171,8 @@ const APL02Upload = ({
                     <span className="font-medium text-blue-600 hover:underline">
                       Pilih file
                     </span>
-                    {formData.apl02 ? (
-                      <p className="text-xs">{formData.apl02.name}</p>
+                    {localFormData.apl02 ? (
+                      <p className="text-xs">{typeof localFormData.apl02 === 'object' && localFormData.apl02.name ? localFormData.apl02.name : 'File terpilih'}</p>
                     ) : (
                       <p className="text-xs">PDF (Maks. 5MB)</p>
                     )}
@@ -119,7 +189,10 @@ const APL02Upload = ({
               </label>
             </div>
             {formErrors.apl02 && (
-              <p className="text-sm text-red-500">{formErrors.apl02}</p>
+              <p className="text-sm text-red-500 flex items-center">
+                <FaExclamationCircle className="w-3 h-3 mr-1" />
+                {formErrors.apl02}
+              </p>
             )}
           </div>
         </div>
@@ -133,7 +206,7 @@ const APL02Upload = ({
         
         <div className="space-y-4">
           {/* Daftar Dokumen Pendukung */}
-          {formData.supportingDocuments.length > 0 && (
+          {formData.supportingDocuments && formData.supportingDocuments.length > 0 && (
             <div className="space-y-2">
               <h4 className="text-sm font-medium text-gray-700">Dokumen Terunggah:</h4>
               <div className="space-y-2">
