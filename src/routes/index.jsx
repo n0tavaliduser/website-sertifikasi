@@ -20,6 +20,7 @@ import SchemaList from "@/pages/admin/schema/SchemaList";
 import SchemaUnitList from "@/pages/admin/schema/SchemaUnitList";
 import Profile from "@/pages/app/user/Profile";
 import AssessmentRegisterForm from "@/pages/user/assessment/AssessmentRegisterForm";
+import AssessmentList from "@/pages/app/assessment/AssessmentList";
 
 const { Home, Gallery, Tuks, Berita, Partnership, Tentang, Skema, Kontak } =
   lazily(() => import("@/pages/user"));
@@ -210,7 +211,17 @@ const router = createBrowserRouter([
   ],
 },
 
-
+// admin route
+{
+  path: "/app",
+  element: <AppLayout />,
+  children: [
+    {
+      path: "assessee",
+      element: <AssessmentList />,
+    },
+  ],
+},
 ]);
 
 export default router;
