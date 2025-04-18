@@ -635,7 +635,152 @@ const AssessmentRegisterForm = () => {
     }
     
     if (validateStep(currentStep)) {
-      setCurrentStep(currentStep + 1);
+      if (currentStep === 5) {
+        // Jika ini adalah langkah terakhir, lakukan submit form
+        handleSubmit();
+      } else {
+        setCurrentStep(currentStep + 1);
+      }
+    }
+  };
+  
+  // Cek apakah file adalah mock file dari localStorage
+  const isMockFile = (file) => {
+    return file && typeof file === 'object' && file._savedFromLocalStorage === true;
+  };
+  
+  // Create a dummy file untuk mock file dari localStorage
+  const createDummyFile = (mockFile) => {
+    // Buat empty file dengan nama dan tipe yang sama
+    const fileData = new Blob([''], { type: mockFile.type || 'application/octet-stream' });
+    return new File([fileData], mockFile.name || 'file.pdf', {
+      type: mockFile.type || 'application/octet-stream',
+      lastModified: mockFile.lastModified || Date.now()
+    });
+  };
+  
+  // Submit form ke API
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Gabungkan data sebelum submit
+      mergeFilesBeforeValidation();
+      
+      const API_URL = import.meta.env.VITE_API_URL || window.ENV_API_URL || "http://localhost:8000/api";
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        setError('Anda harus login terlebih dahulu');
+        navigate('/auth/login');
+        return;
+      }
+
+      // Persiapkan FormData untuk upload file
+      const formDataToSend = new FormData();
+      
+      // 1. Data personal
+      formDataToSend.append('name', formData.fullName);
+      formDataToSend.append('email', formData.email);
+      formDataToSend.append('phone_number', formData.phoneNumber);
+      formDataToSend.append('address', formData.address);
+      formDataToSend.append('identity_number', formData.idNumber);
+      formDataToSend.append('birth_date', formData.birthDate);
+      formDataToSend.append('birth_place', formData.birthPlace);
+      formDataToSend.append('last_education_level', formData.education);
+      formDataToSend.append('instance_id', formData.instanceId);
+      
+      // 2. Data skema
+      formDataToSend.append('schema_id', formData.schemaId);
+      formDataToSend.append('method', formData.certificationMethod);
+      formDataToSend.append('assessment_date', formData.assessmentDate);
+      
+      // 3. Dokumen-dokumen
+      if (formData.lastDiploma) {
+        const file = isMockFile(formData.lastDiploma) ? createDummyFile(formData.lastDiploma) : formData.lastDiploma;
+        formDataToSend.append('last_education_certificate', file);
+      }
+      if (formData.idCard) {
+        const file = isMockFile(formData.idCard) ? createDummyFile(formData.idCard) : formData.idCard;
+        formDataToSend.append('identity_card', file);
+      }
+      if (formData.familyCard) {
+        const file = isMockFile(formData.familyCard) ? createDummyFile(formData.familyCard) : formData.familyCard;
+        formDataToSend.append('family_card', file);
+      }
+      if (formData.photo) {
+        const file = isMockFile(formData.photo) ? createDummyFile(formData.photo) : formData.photo;
+        formDataToSend.append('self_photo', file);
+      }
+      if (formData.instanceSupport) {
+        const file = isMockFile(formData.instanceSupport) ? createDummyFile(formData.instanceSupport) : formData.instanceSupport;
+        formDataToSend.append('instance_support', file);
+      }
+      if (formData.apl01) {
+        const file = isMockFile(formData.apl01) ? createDummyFile(formData.apl01) : formData.apl01;
+        formDataToSend.append('apl01', file);
+      }
+      if (formData.apl02) {
+        const file = isMockFile(formData.apl02) ? createDummyFile(formData.apl02) : formData.apl02;
+        formDataToSend.append('apl02', file);
+      }
+      
+      // 4. Dokumen pendukung (jika ada)
+      if (formData.supportingDocuments && formData.supportingDocuments.length > 0) {
+        // Kirim sebagai array files
+        formData.supportingDocuments.forEach((doc, index) => {
+          const file = isMockFile(doc) ? createDummyFile(doc) : doc;
+          formDataToSend.append(`supporting_documents[${index}]`, file);
+        });
+      }
+      
+      // Log data yang akan dikirim
+      console.log("Mengirim data ke API:", Object.fromEntries(formDataToSend));
+      
+      const response = await fetch(`${API_URL}/assessee`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          // Jangan set Content-Type karena browser akan otomatis menambahkan boundary untuk FormData
+        },
+        body: formDataToSend,
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        console.error('API Error Response:', result);
+        
+        // Handle validation errors
+        if (response.status === 422 && result.errors) {
+          const errorMessages = [];
+          // Gabungkan semua pesan error validasi
+          Object.entries(result.errors).forEach(([field, messages]) => {
+            errorMessages.push(`${field}: ${messages.join(', ')}`);
+          });
+          throw new Error(`Validasi gagal: ${errorMessages.join('; ')}`);
+        }
+        
+        throw new Error(result.message || 'Terjadi kesalahan saat mengirim data asesmen');
+      }
+      
+      // Bersihkan data di localStorage
+      localStorage.removeItem('assessmentFiles');
+      
+      // Tampilkan pesan sukses
+      alert('Pendaftaran asesmen berhasil dikirim. Anda akan diarahkan kembali ke halaman utama.');
+      
+      // Redirect ke halaman utama assessee
+      navigate('/user/assessment');
+    } catch (error) {
+      console.error('Error submitting assessment:', error);
+      setError(error.message || 'Terjadi kesalahan saat mengirim pendaftaran asesmen. Silakan coba lagi nanti.');
+      
+      // Gulir ke atas agar pesan error terlihat
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } finally {
+      setLoading(false);
     }
   };
   
@@ -1063,8 +1208,21 @@ const AssessmentRegisterForm = () => {
         </h1>
         
         {error && (
-          <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-md">
-            {error}
+          <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-md flex items-center">
+            <svg className="h-5 w-5 mr-2 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+            <span>{error}</span>
+          </div>
+        )}
+        
+        {loading && currentStep === 5 && (
+          <div className="mb-6 p-4 bg-blue-100 text-blue-700 rounded-md flex items-center">
+            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Sedang mengirim pendaftaran asesmen Anda...</span>
           </div>
         )}
         
@@ -1091,9 +1249,22 @@ const AssessmentRegisterForm = () => {
           <button
             type="button"
             onClick={handleNextStep}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            disabled={loading}
+            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
           >
-            {currentStep === 5 ? 'Selesai' : 'Selanjutnya'}
+            {loading ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Memproses...
+              </>
+            ) : currentStep === 5 ? (
+              'Kirim Pendaftaran'
+            ) : (
+              'Selanjutnya'
+            )}
           </button>
         </div>
       </div>
