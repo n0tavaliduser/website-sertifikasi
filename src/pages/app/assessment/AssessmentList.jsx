@@ -145,7 +145,7 @@ const AssessmentList = () => {
           </div>
           
           <Button 
-            onClick={() => navigate("/user/assessment/register")} 
+            onClick={() => navigate("/user/assessment")} 
             className="flex items-center gap-2 whitespace-nowrap"
           >
             <FiFileText /> Ajukan Asesmen Baru
@@ -166,7 +166,7 @@ const AssessmentList = () => {
           <p className="text-gray-500">Belum ada pengajuan asesmen{searchQuery && " yang sesuai dengan pencarian"}.</p>
           <Button 
             className="mt-4"
-            onClick={() => navigate("/user/assessment/register")}
+            onClick={() => navigate("/user/assessment")}
           >
             Ajukan Asesmen Baru
           </Button>
