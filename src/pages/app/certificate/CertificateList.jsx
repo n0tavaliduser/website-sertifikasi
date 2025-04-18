@@ -118,13 +118,22 @@ const CertificateList = () => {
       // Membuat URL untuk mengunduh sertifikat
       const downloadUrl = `${API_URL}/certificates/${certificate.id}/download`;
       
-      // Membuat request dengan token autentikasi
+      // Membuat request dengan token autentikasi, respons sebagai blob
       const response = await fetch(downloadUrl, {
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
+          // Tidak menggunakan 'Accept': 'application/json' karena mengharapkan respons file
         }
       });
+      
+      // Periksa contentType pada respons
+      const contentType = response.headers.get('content-type');
+      
+      // Jika respons adalah JSON, berarti terjadi error
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Gagal mengunduh sertifikat');
+      }
       
       if (!response.ok) {
         throw new Error('Gagal mengunduh sertifikat');
@@ -141,8 +150,11 @@ const CertificateList = () => {
       a.style.display = 'none';
       a.href = url;
       
-      // Tentukan nama file download
-      const fileName = `Sertifikat_${certificate.certificate_number}.pdf`;
+      // Tentukan nama file download dan pastikan tidak ada karakter / atau \
+      const sanitizedCertNumber = certificate.certificate_number 
+        ? certificate.certificate_number.replace(/[\/\\]/g, '_') 
+        : 'sertifikat';
+      const fileName = `Sertifikat_${sanitizedCertNumber}.pdf`;
       a.download = fileName;
       
       // Tambahkan ke DOM, klik, dan hapus
@@ -150,9 +162,26 @@ const CertificateList = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+      
+      // Tidak menampilkan alert berhasil karena membingungkan user jika IDM mengambil alih
+      
     } catch (err) {
       console.error("Error downloading certificate:", err);
-      alert("Gagal mengunduh sertifikat");
+      
+      // Tidak menampilkan alert error karena jika IDM mengambil alih, download tetap berhasil
+      // meskipun JavaScript mendapatkan NetworkError
+      
+      // Cek apakah error adalah NetworkError (biasanya terjadi karena download manager mengambil alih)
+      if (err.message && (err.message.includes('NetworkError') || err.message.includes('network'))) {
+        console.log('Download mungkin berhasil melalui download manager eksternal');
+        // Tidak perlu menampilkan error
+      } else if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('fetch'))) {
+        console.log('Download mungkin berhasil melalui download manager eksternal');
+        // Tidak perlu menampilkan error
+      } else {
+        // Hanya tampilkan alert jika bukan NetworkError atau fetch error
+        alert("Gagal mengunduh sertifikat: " + err.message);
+      }
     } finally {
       setLoading(false);
     }
