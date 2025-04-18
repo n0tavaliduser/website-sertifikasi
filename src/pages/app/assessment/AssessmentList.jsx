@@ -19,7 +19,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { FiCheck, FiEye, FiFileText, FiSearch, FiX } from "react-icons/fi";
+import { FiCheck, FiEye, FiFileText, FiSearch, FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 
 const AssessmentList = () => {
@@ -30,6 +30,8 @@ const AssessmentList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [currentAssessment, setCurrentAssessment] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Mendapatkan API URL dari variabel lingkungan
   const API_URL = import.meta.env.VITE_API_URL || window.ENV_API_URL || "http://localhost:8000/api";
@@ -77,6 +79,22 @@ const AssessmentList = () => {
     (item.phone_number && item.phone_number.toLowerCase().includes(searchQuery.toLowerCase())) ||
     (item.schema && item.schema.name && item.schema.name.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredAssessments.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredAssessments.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
+
+  // Reset ke halaman pertama ketika pencarian berubah
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   // Membuka dialog detail asesmen
   const handleViewDetail = (assessment) => {
@@ -169,7 +187,7 @@ const AssessmentList = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAssessments.map((item) => (
+                {currentItems.map((item) => (
                   <TableRow key={item.id} className="hover:bg-gray-50">
                     <TableCell className="font-medium">
                       <div>
@@ -211,6 +229,79 @@ const AssessmentList = () => {
               </TableBody>
             </Table>
           </div>
+          
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-gray-700">
+                    Menampilkan <span className="font-medium">{indexOfFirstItem + 1}</span> sampai{' '}
+                    <span className="font-medium">
+                      {Math.min(indexOfLastItem, filteredAssessments.length)}
+                    </span>{' '}
+                    dari <span className="font-medium">{filteredAssessments.length}</span> data
+                  </p>
+                </div>
+                <div>
+                  <nav className="inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-l-md px-2"
+                      onClick={prevPage}
+                      disabled={currentPage === 1}
+                    >
+                      <FiChevronLeft className="h-4 w-4" />
+                    </Button>
+                    {Array.from({ length: totalPages }, (_, i) => (
+                      <Button
+                        key={i + 1}
+                        variant={currentPage === i + 1 ? "default" : "outline"}
+                        size="sm"
+                        className="px-3"
+                        onClick={() => paginate(i + 1)}
+                      >
+                        {i + 1}
+                      </Button>
+                    )).slice(
+                      Math.max(0, currentPage - 3),
+                      Math.min(totalPages, currentPage + 2)
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-r-md px-2"
+                      onClick={nextPage}
+                      disabled={currentPage === totalPages}
+                    >
+                      <FiChevronRight className="h-4 w-4" />
+                    </Button>
+                  </nav>
+                </div>
+              </div>
+              <div className="flex sm:hidden justify-between items-center w-full">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={prevPage}
+                  disabled={currentPage === 1}
+                >
+                  <FiChevronLeft className="h-4 w-4 mr-1" /> Sebelumnya
+                </Button>
+                <span className="text-sm">
+                  {currentPage} dari {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={nextPage}
+                  disabled={currentPage === totalPages}
+                >
+                  Selanjutnya <FiChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
