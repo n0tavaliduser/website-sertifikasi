@@ -574,42 +574,87 @@ const AssessmentRegisterForm = () => {
   };
   
   // Handle template download
-  const handleDownloadTemplate = (templateType) => {
+  const handleDownloadTemplate = async (templateType, apl02Type) => {
     try {
-      // Simulasi download template
-      let fileName = '';
-      let fileUrl = '';
+      setLoading(true);
       
-      switch (templateType) {
-        case 'apl01':
-          fileName = 'APL_01_Formulir_Permohonan.pdf';
-          fileUrl = '/templates/APL_01_Formulir_Permohonan.pdf';
-          break;
-        case 'apl02_observasi':
-          fileName = 'APL_02_Observasi.pdf';
-          fileUrl = '/templates/APL_02_Observasi.pdf';
-          break;
-        case 'apl02_portofolio':
-          fileName = 'APL_02_Portofolio.pdf';
-          fileUrl = '/templates/APL_02_Portofolio.pdf';
-          break;
-        default:
-          setError('Template tidak tersedia');
-          return;
+      const API_URL = import.meta.env.VITE_API_URL || window.ENV_API_URL || "http://localhost:8000/api";
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        setError('Anda harus login terlebih dahulu');
+        navigate('/auth/login');
+        return;
       }
       
-      // Dalam implementasi nyata, ini bisa mengambil file dari server
-      // Untuk contoh ini, kita hanya mensimulasikan download
-      const link = document.createElement('a');
-      link.href = fileUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // URL endpoint tergantung jenis template
+      let endpoint = '';
+      switch(templateType) {
+        case 'apl01':
+          endpoint = `/assessee/template/download/apl01`;
+          break;
+        case 'apl02':
+          // Jika apl02Type diberikan, gunakan itu
+          const type = apl02Type || (formData.certificationMethod === 'observasi' ? 'observation' : 
+                                    formData.certificationMethod === 'portofolio' ? 'portofolio' : '');
+          
+          if (!type) {
+            throw new Error('Metode asesmen tidak valid. Pilih metode observasi atau portofolio.');
+          }
+          
+          endpoint = `/assessee/template/download/apl02?type=${type}`;
+          break;
+        case 'apl02_observasi':
+          endpoint = `/assessee/template/download/apl02?type=observation`;
+          break;
+        case 'apl02_portofolio':
+          endpoint = `/assessee/template/download/apl02?type=portofolio`;
+          break;
+        default:
+          throw new Error('Template tidak tersedia');
+      }
+      
+      console.log(`Downloading template from: ${API_URL}${endpoint}`);
+      
+      // Proses download template dari API
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/octet-stream'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      
+      // Mendapatkan nama file dari header
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'template.pdf';
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
+      
+      // Download file
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
       
     } catch (err) {
       console.error('Error downloading template:', err);
-      setError('Gagal mengunduh template. Silakan coba lagi nanti.');
+      setError(err.message || 'Gagal mengunduh template. Silakan coba lagi nanti.');
+    } finally {
+      setLoading(false);
     }
   };
   

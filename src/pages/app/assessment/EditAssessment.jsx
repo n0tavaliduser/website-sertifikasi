@@ -299,8 +299,12 @@ const EditAssessment = () => {
   };
 
   // Handle download template
-  const handleDownloadTemplate = async (templateType) => {
+  const handleDownloadTemplate = async (e, templateType) => {
     try {
+      // Mencegah default behavior dan event propagation
+      e.preventDefault();
+      e.stopPropagation();
+      
       setLoading(true);
       const token = localStorage.getItem('token');
       
@@ -311,11 +315,26 @@ const EditAssessment = () => {
           endpoint = `/assessee/template/download/apl01`;
           break;
         case 'apl02':
-          endpoint = `/assessee/template/download/apl02`;
+          // Default APL02 sesuai dengan metode yang dipilih
+          const method = formData.method ? formData.method.toLowerCase() : '';
+          let type = '';
+          
+          // Konversi nama metode sesuai dengan yang diharapkan backend
+          if (method === 'observasi') {
+            type = 'observation';
+          } else if (method === 'portofolio') {
+            type = 'portofolio';
+          } else {
+            throw new Error('Metode asesmen tidak valid. Pilih metode observasi atau portofolio.');
+          }
+          
+          endpoint = `/assessee/template/download/apl02?type=${type}`;
           break;
         default:
           throw new Error('Jenis template tidak valid');
       }
+      
+      console.log(`Downloading template from: ${API_URL}${endpoint}`);
       
       // Proses download template
       const response = await fetch(`${API_URL}${endpoint}`, {
@@ -359,7 +378,7 @@ const EditAssessment = () => {
       console.error(`Error downloading ${templateType} template:`, error);
       toast({
         title: "Gagal",
-        description: `Gagal mengunduh template ${templateType.toUpperCase()}.`,
+        description: error.message || `Gagal mengunduh template ${templateType.toUpperCase()}.`,
         variant: "destructive",
       });
     } finally {
@@ -715,7 +734,7 @@ const EditAssessment = () => {
                         <div className="mt-1 flex items-center space-x-3">
                           <button
                             type="button"
-                            onClick={() => handleDownloadTemplate('apl01')}
+                            onClick={(e) => handleDownloadTemplate(e, 'apl01')}
                             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none flex items-center"
                             disabled={!formData.schema_id}
                           >
@@ -780,17 +799,17 @@ const EditAssessment = () => {
                         <div className="mt-1 flex items-center space-x-3">
                           <button
                             type="button"
-                            onClick={() => handleDownloadTemplate('apl02')}
+                            onClick={(e) => handleDownloadTemplate(e, 'apl02')}
                             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none flex items-center"
-                            disabled={!formData.schema_id}
+                            disabled={!formData.schema_id || !formData.method}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                               <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
                             </svg>
                             Download Template
                           </button>
-                          {!formData.schema_id && (
-                            <span className="text-xs text-amber-600">Pilih skema sertifikasi terlebih dahulu</span>
+                          {!formData.method && (
+                            <span className="text-xs text-amber-600">Pilih metode asesmen terlebih dahulu</span>
                           )}
                         </div>
                         
