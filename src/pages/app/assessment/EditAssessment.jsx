@@ -25,7 +25,7 @@ import {
   TabsList, 
   TabsTrigger 
 } from "@/components/ui/tabs";
-import { FiSave, FiArrowLeft, FiLoader, FiUser, FiFileText, FiCalendar } from "react-icons/fi";
+import { FiSave, FiArrowLeft, FiLoader, FiUser, FiFileText, FiCalendar, FiFile } from "react-icons/fi";
 
 const EditAssessment = () => {
   const { id } = useParams();
@@ -57,7 +57,17 @@ const EditAssessment = () => {
     
     // Status asesmen (tidak diedit)
     assessment_status: '',
-    assessment_note: ''
+    assessment_note: '',
+
+    // Dokumen
+    lastDiploma: null,
+    idCard: null,
+    familyCard: null,
+    photo: null,
+    instanceSupport: null,
+    apl01: null,
+    apl02: null,
+    supportingDocuments: []
   });
 
   // API URL
@@ -103,7 +113,17 @@ const EditAssessment = () => {
             
             // Status asesmen (tidak diedit tapi ditampilkan)
             assessment_status: result.data.assessment_status || '',
-            assessment_note: result.data.assessment_note || ''
+            assessment_note: result.data.assessment_note || '',
+
+            // Dokumen (tampilkan jika ada)
+            lastDiploma: result.data.lastDiploma || null,
+            idCard: result.data.idCard || null,
+            familyCard: result.data.familyCard || null,
+            photo: result.data.photo || null,
+            instanceSupport: result.data.instanceSupport || null,
+            apl01: result.data.apl01 || null,
+            apl02: result.data.apl02 || null,
+            supportingDocuments: result.data.supportingDocuments || []
           });
         } else {
           setError(result.message || "Gagal mendapatkan data asesmen");
@@ -218,6 +238,135 @@ const EditAssessment = () => {
     }));
   };
 
+  // Handle file change
+  const handleFileChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle supporting document add
+  const handleSupportingDocumentAdd = (e) => {
+    if (!e.target.files.length) return;
+    
+    const newFiles = Array.from(e.target.files);
+    
+    // Validasi tipe dan ukuran file
+    let validFiles = true;
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    
+    newFiles.forEach(file => {
+      if (!allowedTypes.includes(file.type)) {
+        alert(`File "${file.name}" tidak didukung. Silakan unggah file dalam format PDF, JPG, JPEG, atau PNG.`);
+        validFiles = false;
+        return;
+      }
+      
+      if (file.size > maxSize) {
+        alert(`File "${file.name}" terlalu besar. Maksimal 5MB.`);
+        validFiles = false;
+        return;
+      }
+    });
+    
+    if (!validFiles) {
+      e.target.value = '';
+      return;
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      supportingDocuments: [...prev.supportingDocuments, ...newFiles]
+    }));
+    
+    // Reset input
+    e.target.value = '';
+  };
+
+  // Handle remove supporting document
+  const handleRemoveSupportingDocument = (index) => {
+    setFormData(prev => {
+      const updatedFiles = [...prev.supportingDocuments];
+      updatedFiles.splice(index, 1);
+      return {
+        ...prev,
+        supportingDocuments: updatedFiles
+      };
+    });
+  };
+
+  // Handle download template
+  const handleDownloadTemplate = async (templateType) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      
+      // URL endpoint tergantung jenis template
+      let endpoint = '';
+      switch(templateType) {
+        case 'apl01':
+          endpoint = `/assessee/template/download/apl01`;
+          break;
+        case 'apl02':
+          endpoint = `/assessee/template/download/apl02`;
+          break;
+        default:
+          throw new Error('Jenis template tidak valid');
+      }
+      
+      // Proses download template
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/octet-stream'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      
+      // Mendapatkan nama file dari header
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'template.pdf';
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
+      
+      // Download file
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "Berhasil",
+        description: `Template ${templateType.toUpperCase()} berhasil diunduh.`,
+      });
+    } catch (error) {
+      console.error(`Error downloading ${templateType} template:`, error);
+      toast({
+        title: "Gagal",
+        description: `Gagal mengunduh template ${templateType.toUpperCase()}.`,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Format date for display
   const formatDate = (dateString) => {
     if (!dateString) return '-';
@@ -312,7 +461,7 @@ const EditAssessment = () => {
       
       <form onSubmit={handleSubmit}>
         <Tabs defaultValue="personal" className="w-full">
-          <TabsList className="grid grid-cols-3 mb-6">
+          <TabsList className="grid grid-cols-4 mb-6">
             <TabsTrigger value="personal" className="flex items-center">
               <FiUser className="mr-2" /> Data Pribadi
             </TabsTrigger>
@@ -321,6 +470,9 @@ const EditAssessment = () => {
             </TabsTrigger>
             <TabsTrigger value="assessment" className="flex items-center">
               <FiCalendar className="mr-2" /> Jadwal Asesmen
+            </TabsTrigger>
+            <TabsTrigger value="documents" className="flex items-center">
+              <FiFile className="mr-2" /> Dokumen
             </TabsTrigger>
           </TabsList>
           
@@ -528,6 +680,410 @@ const EditAssessment = () => {
                     value={formData.assessment_date}
                     onChange={handleInputChange}
                   />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* Tab Dokumen */}
+          <TabsContent value="documents">
+            <Card>
+              <CardHeader>
+                <CardTitle>Dokumen Asesmen</CardTitle>
+                <CardDescription>Kelola dokumen-dokumen asesmen</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="bg-blue-50 p-4 rounded-md mb-6">
+                  <h3 className="font-semibold text-blue-700 mb-2">Dokumen Asesmen</h3>
+                  <p className="text-sm text-blue-800">
+                    Kelola dokumen-dokumen pendukung asesmen seperti ijazah, KTP, kartu keluarga, foto, surat dukungan instansi, dan formulir APL.
+                  </p>
+                </div>
+
+                {/* Formulir APL */}
+                <div className="space-y-6">
+                  <h3 className="font-medium text-lg mb-3">Formulir APL</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* APL 01 */}
+                    <div className="p-4 border rounded-md space-y-4">
+                      <h4 className="font-medium">APL 01 - Formulir Permohonan Sertifikasi</h4>
+                      <p className="text-sm text-gray-500">
+                        APL 01 adalah formulir permohonan sertifikasi kompetensi yang berisi data pribadi, data pekerjaan, dan tujuan asesmen.
+                      </p>
+                      
+                      <div className="space-y-2">
+                        <div className="mt-1 flex items-center space-x-3">
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadTemplate('apl01')}
+                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none flex items-center"
+                            disabled={!formData.schema_id}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                            Download Template
+                          </button>
+                          {!formData.schema_id && (
+                            <span className="text-xs text-amber-600">Pilih skema sertifikasi terlebih dahulu</span>
+                          )}
+                        </div>
+                        
+                        <div className="mt-4">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Upload APL 01 yang Sudah Diisi <span className="text-red-500">*</span>
+                          </label>
+                          <div className="flex items-center">
+                            <input
+                              type="file"
+                              id="apl01"
+                              name="apl01"
+                              className="hidden"
+                              onChange={(e) => handleFileChange({
+                                target: {
+                                  name: 'apl01',
+                                  value: e.target.files[0]
+                                }
+                              })}
+                              accept=".pdf,.jpg,.jpeg,.png"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => document.getElementById('apl01').click()}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+                            >
+                              {formData.apl01 ? 'Ganti File' : 'Upload File'}
+                            </button>
+                            {formData.apl01 && (
+                              <span className="ml-2 text-sm text-gray-500">
+                                {typeof formData.apl01 === 'string' 
+                                  ? formData.apl01
+                                  : formData.apl01.name}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Upload file APL 01 yang sudah diisi dan ditandatangani (PDF)
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* APL 02 */}
+                    <div className="p-4 border rounded-md space-y-4">
+                      <h4 className="font-medium">APL 02 - Asesmen Mandiri</h4>
+                      <p className="text-sm text-gray-500">
+                        APL 02 adalah dokumen asesmen mandiri di mana peserta menilai kemampuan dirinya terhadap unit kompetensi yang akan diujikan.
+                      </p>
+                      
+                      <div className="space-y-2">
+                        <div className="mt-1 flex items-center space-x-3">
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadTemplate('apl02')}
+                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none flex items-center"
+                            disabled={!formData.schema_id}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                            Download Template
+                          </button>
+                          {!formData.schema_id && (
+                            <span className="text-xs text-amber-600">Pilih skema sertifikasi terlebih dahulu</span>
+                          )}
+                        </div>
+                        
+                        <div className="mt-4">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Upload APL 02 yang Sudah Diisi <span className="text-red-500">*</span>
+                          </label>
+                          <div className="flex items-center">
+                            <input
+                              type="file"
+                              id="apl02"
+                              name="apl02"
+                              className="hidden"
+                              onChange={(e) => handleFileChange({
+                                target: {
+                                  name: 'apl02',
+                                  value: e.target.files[0]
+                                }
+                              })}
+                              accept=".pdf,.jpg,.jpeg,.png"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => document.getElementById('apl02').click()}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+                            >
+                              {formData.apl02 ? 'Ganti File' : 'Upload File'}
+                            </button>
+                            {formData.apl02 && (
+                              <span className="ml-2 text-sm text-gray-500">
+                                {typeof formData.apl02 === 'string' 
+                                  ? formData.apl02
+                                  : formData.apl02.name}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Upload file APL 02 yang sudah diisi dan ditandatangani (PDF)
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-6 mt-8">
+                  <h3 className="font-medium text-lg mb-3">Dokumen Wajib</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Ijazah Terakhir */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Ijazah Terakhir <span className="text-red-500">*</span>
+                      </label>
+                      <div className="mt-1 flex items-center">
+                        <input
+                          type="file"
+                          id="lastDiploma"
+                          name="lastDiploma"
+                          className="hidden"
+                          onChange={(e) => handleFileChange({
+                            target: {
+                              name: 'lastDiploma',
+                              value: e.target.files[0]
+                            }
+                          })}
+                          accept=".pdf,.jpg,.jpeg,.png"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => document.getElementById('lastDiploma').click()}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+                        >
+                          {formData.lastDiploma ? 'Ganti File' : 'Upload File'}
+                        </button>
+                        {formData.lastDiploma && (
+                          <span className="ml-2 text-sm text-gray-500">
+                            {typeof formData.lastDiploma === 'string' 
+                              ? formData.lastDiploma
+                              : formData.lastDiploma.name}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* KTP */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        KTP <span className="text-red-500">*</span>
+                      </label>
+                      <div className="mt-1 flex items-center">
+                        <input
+                          type="file"
+                          id="idCard"
+                          name="idCard"
+                          className="hidden"
+                          onChange={(e) => handleFileChange({
+                            target: {
+                              name: 'idCard',
+                              value: e.target.files[0]
+                            }
+                          })}
+                          accept=".pdf,.jpg,.jpeg,.png"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => document.getElementById('idCard').click()}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+                        >
+                          {formData.idCard ? 'Ganti File' : 'Upload File'}
+                        </button>
+                        {formData.idCard && (
+                          <span className="ml-2 text-sm text-gray-500">
+                            {typeof formData.idCard === 'string' 
+                              ? formData.idCard
+                              : formData.idCard.name}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Kartu Keluarga */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Kartu Keluarga <span className="text-red-500">*</span>
+                      </label>
+                      <div className="mt-1 flex items-center">
+                        <input
+                          type="file"
+                          id="familyCard"
+                          name="familyCard"
+                          className="hidden"
+                          onChange={(e) => handleFileChange({
+                            target: {
+                              name: 'familyCard',
+                              value: e.target.files[0]
+                            }
+                          })}
+                          accept=".pdf,.jpg,.jpeg,.png"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => document.getElementById('familyCard').click()}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+                        >
+                          {formData.familyCard ? 'Ganti File' : 'Upload File'}
+                        </button>
+                        {formData.familyCard && (
+                          <span className="ml-2 text-sm text-gray-500">
+                            {typeof formData.familyCard === 'string' 
+                              ? formData.familyCard
+                              : formData.familyCard.name}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Pas Foto */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Pas Foto (Latar Belakang Merah) <span className="text-red-500">*</span>
+                      </label>
+                      <div className="mt-1 flex items-center">
+                        <input
+                          type="file"
+                          id="photo"
+                          name="photo"
+                          className="hidden"
+                          onChange={(e) => handleFileChange({
+                            target: {
+                              name: 'photo',
+                              value: e.target.files[0]
+                            }
+                          })}
+                          accept=".pdf,.jpg,.jpeg,.png"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => document.getElementById('photo').click()}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+                        >
+                          {formData.photo ? 'Ganti File' : 'Upload File'}
+                        </button>
+                        {formData.photo && (
+                          <span className="ml-2 text-sm text-gray-500">
+                            {typeof formData.photo === 'string' 
+                              ? formData.photo
+                              : formData.photo.name}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Surat Dukungan Instansi */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Surat Dukungan Instansi <span className="text-red-500">*</span>
+                      </label>
+                      <div className="mt-1 flex items-center">
+                        <input
+                          type="file"
+                          id="instanceSupport"
+                          name="instanceSupport"
+                          className="hidden"
+                          onChange={(e) => handleFileChange({
+                            target: {
+                              name: 'instanceSupport',
+                              value: e.target.files[0]
+                            }
+                          })}
+                          accept=".pdf,.jpg,.jpeg,.png"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => document.getElementById('instanceSupport').click()}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+                        >
+                          {formData.instanceSupport ? 'Ganti File' : 'Upload File'}
+                        </button>
+                        {formData.instanceSupport && (
+                          <span className="ml-2 text-sm text-gray-500">
+                            {typeof formData.instanceSupport === 'string' 
+                              ? formData.instanceSupport
+                              : formData.instanceSupport.name}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Dokumen Pendukung */}
+                  <div className="mt-8">
+                    <h3 className="font-medium mb-3">Dokumen Pendukung</h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      Upload dokumen tambahan yang mendukung proses asesmen (sertifikat, hasil kerja, foto kegiatan, dll)
+                    </p>
+                    
+                    {/* Daftar Dokumen Pendukung */}
+                    {formData.supportingDocuments && formData.supportingDocuments.length > 0 && (
+                      <div className="space-y-2 mb-4">
+                        <h4 className="text-sm font-medium text-gray-700">Dokumen Terunggah:</h4>
+                        <div className="space-y-2">
+                          {formData.supportingDocuments.map((doc, index) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                              <div className="flex items-center">
+                                <FiFile className="text-gray-400 mr-2" />
+                                <span className="text-sm">{typeof doc === 'string' ? doc : doc.name}</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveSupportingDocument(index)}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <FiArrowLeft />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Upload Dokumen Pendukung */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Tambah Dokumen Pendukung
+                      </label>
+                      <div className="flex items-center">
+                        <label className="flex items-center justify-center w-full px-4 py-2 border border-dashed rounded-md cursor-pointer border-gray-300">
+                          <div className="space-y-1 text-center">
+                            <FiFile className="mx-auto h-6 w-6 text-gray-400" />
+                            <div className="text-sm text-gray-500">
+                              <span className="font-medium text-blue-600 hover:underline">
+                                Tambah Dokumen
+                              </span>
+                              <p className="text-xs">PDF, JPG, atau PNG (Maks. 5MB)</p>
+                            </div>
+                          </div>
+                          <input
+                            id="supportingDocuments"
+                            name="supportingDocuments"
+                            type="file"
+                            className="hidden"
+                            onChange={handleSupportingDocumentAdd}
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            multiple
+                          />
+                        </label>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Anda dapat mengunggah beberapa dokumen sekaligus
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
