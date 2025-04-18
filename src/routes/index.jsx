@@ -65,7 +65,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/berita/:id",
+    path: "/berita/:slug",
     element: (
       <Suspense fallback={<IconLoading />}>
         <NewsDetail />
