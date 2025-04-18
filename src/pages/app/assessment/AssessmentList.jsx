@@ -19,7 +19,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { FiCheck, FiEye, FiFileText, FiSearch, FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiCheck, FiEye, FiFileText, FiSearch, FiX, FiChevronLeft, FiChevronRight, FiEdit } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 
 const AssessmentList = () => {
@@ -215,14 +215,26 @@ const AssessmentList = () => {
                     </TableCell>
                     <TableCell>{renderStatusBadge(item.assessment_status)}</TableCell>
                     <TableCell className="text-right">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleViewDetail(item)}
-                        className="flex items-center gap-1"
-                      >
-                        <FiEye className="h-4 w-4" /> Detail
-                      </Button>
+                      <div className="flex items-center justify-end gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleViewDetail(item)}
+                          className="flex items-center gap-1"
+                        >
+                          <FiEye className="h-4 w-4" /> Detail
+                        </Button>
+                        {item.assessment_status !== 'completed' && (
+                          <Button 
+                            variant="default" 
+                            size="sm" 
+                            onClick={() => navigate(`/app/assessee/${item.id}/edit`)}
+                            className="flex items-center gap-1 bg-blue-600"
+                          >
+                            <FiEdit className="h-4 w-4" /> Edit
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -457,12 +469,22 @@ const AssessmentList = () => {
               Tutup
             </Button>
             {currentAssessment && currentAssessment.assessment_status !== 'completed' && (
-              <Button 
-                type="button" 
-                onClick={() => navigate(`/user/assessment/edit/${currentAssessment.id}`)}
-              >
-                Edit Pengajuan
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  type="button" 
+                  onClick={() => navigate(`/user/assessment/edit/${currentAssessment.id}`)}
+                  className="bg-blue-600"
+                >
+                  Edit Pengajuan
+                </Button>
+                <Button 
+                  type="button" 
+                  onClick={() => navigate(`/admin/assessment/edit/${currentAssessment.id}`)}
+                  className="bg-green-600"
+                >
+                  Update Status
+                </Button>
+              </div>
             )}
           </DialogFooter>
         </DialogContent>
