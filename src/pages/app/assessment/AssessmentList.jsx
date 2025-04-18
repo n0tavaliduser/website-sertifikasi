@@ -7,7 +7,8 @@ import {
     DialogDescription,
     DialogFooter,
     DialogHeader,
-    DialogTitle
+    DialogTitle,
+    DialogTrigger
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { 
@@ -29,7 +30,10 @@ const AssessmentList = () => {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
   const [currentAssessment, setCurrentAssessment] = useState(null);
+  const [newStatus, setNewStatus] = useState("");
+  const [updatingStatus, setUpdatingStatus] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -100,6 +104,66 @@ const AssessmentList = () => {
   const handleViewDetail = (assessment) => {
     setCurrentAssessment(assessment);
     setShowDetailModal(true);
+  };
+
+  // Membuka dialog update status
+  const handleOpenStatusModal = (assessment) => {
+    setCurrentAssessment(assessment);
+    setNewStatus(assessment.assessment_status || "");
+    setShowStatusModal(true);
+  };
+
+  // Update status asesmen
+  const handleUpdateStatus = async () => {
+    if (!currentAssessment) return;
+    
+    try {
+      setUpdatingStatus(true);
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${API_URL}/assessee/${currentAssessment.id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          status: newStatus
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        alert("Status asesmen berhasil diperbarui");
+        
+        // Update data lokal
+        setAssessments(assessments.map(item => 
+          item.id === currentAssessment.id 
+            ? { ...item, assessment_status: newStatus } 
+            : item
+        ));
+        
+        // Tutup modal
+        setShowStatusModal(false);
+      } else {
+        throw new Error(result.message || "Gagal memperbarui status asesmen");
+      }
+    } catch (err) {
+      console.error("Error updating assessment status:", err);
+      toast({
+        title: "Gagal",
+        description: err.message || "Terjadi kesalahan saat memperbarui status asesmen",
+        variant: "destructive",
+      });
+    } finally {
+      setUpdatingStatus(false);
+    }
   };
 
   // Format tanggal
@@ -472,20 +536,78 @@ const AssessmentList = () => {
               <div className="flex gap-2">
                 <Button 
                   type="button" 
-                  onClick={() => navigate(`/user/assessment/edit/${currentAssessment.id}`)}
+                  onClick={() => navigate(`/app/assessment/edit/${currentAssessment.id}`)}
                   className="bg-blue-600"
                 >
-                  Edit Pengajuan
+                  <FiEdit className="mr-2 h-4 w-4" /> Edit Asesmen
                 </Button>
                 <Button 
                   type="button" 
-                  onClick={() => navigate(`/admin/assessment/edit/${currentAssessment.id}`)}
+                  onClick={() => handleOpenStatusModal(currentAssessment)}
                   className="bg-green-600"
                 >
-                  Update Status
+                  <FiCheck className="mr-2 h-4 w-4" /> Update Status
                 </Button>
               </div>
             )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Update Status */}
+      <Dialog open={showStatusModal} onOpenChange={setShowStatusModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Update Status Asesmen</DialogTitle>
+            <DialogDescription>
+              Ubah status asesmen untuk {currentAssessment?.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Status Asesmen</label>
+              <select
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value="">Pilih Status</option>
+                <option value="pending">Menunggu Verifikasi</option>
+                <option value="approved">Disetujui</option>
+                <option value="rejected">Ditolak</option>
+                <option value="completed">Selesai</option>
+              </select>
+            </div>
+          </div>
+          
+          <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowStatusModal(false)}
+              disabled={updatingStatus}
+            >
+              Batal
+            </Button>
+            <Button 
+              type="button" 
+              onClick={handleUpdateStatus}
+              disabled={!newStatus || updatingStatus}
+              className={!newStatus ? "opacity-50 cursor-not-allowed" : ""}
+            >
+              {updatingStatus ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Memproses...
+                </>
+              ) : (
+                <>Simpan</>
+              )}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
