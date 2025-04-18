@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { FiSearch, FiAward, FiCheck, FiLoader, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiSearch, FiAward, FiCheck, FiLoader, FiChevronLeft, FiChevronRight, FiDownload } from "react-icons/fi";
 
 const CertificateList = () => {
   const navigate = useNavigate();
@@ -95,6 +95,55 @@ const CertificateList = () => {
     navigate(`/app/certificate/assign/${assesseeId}`);
   };
 
+  // Mendownload sertifikat
+  const handleDownloadCertificate = async (certificate) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      
+      // Membuat URL untuk mengunduh sertifikat
+      const downloadUrl = `${API_URL}/certificates/${certificate.id}/download`;
+      
+      // Membuat request dengan token autentikasi
+      const response = await fetch(downloadUrl, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Gagal mengunduh sertifikat');
+      }
+      
+      // Konversi response ke blob
+      const blob = await response.blob();
+      
+      // Buat URL objek untuk blob
+      const url = window.URL.createObjectURL(blob);
+      
+      // Buat elemen <a> untuk mendownload
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      
+      // Tentukan nama file download
+      const fileName = `Sertifikat_${certificate.certificate_number}.pdf`;
+      a.download = fileName;
+      
+      // Tambahkan ke DOM, klik, dan hapus
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error("Error downloading certificate:", err);
+      alert("Gagal mengunduh sertifikat");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
@@ -139,7 +188,7 @@ const CertificateList = () => {
                   <TableHead className="whitespace-nowrap font-semibold text-gray-700">Skema Sertifikasi</TableHead>
                   <TableHead className="whitespace-nowrap font-semibold text-gray-700 hidden md:table-cell">Metode</TableHead>
                   <TableHead className="whitespace-nowrap font-semibold text-gray-700 hidden md:table-cell">Tanggal Asesmen</TableHead>
-                  <TableHead className="whitespace-nowrap font-semibold text-gray-700">Status</TableHead>
+                  <TableHead className="whitespace-nowrap font-semibold text-gray-700">Status Sertifikat</TableHead>
                   <TableHead className="whitespace-nowrap font-semibold text-gray-700 text-right">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
@@ -160,19 +209,36 @@ const CertificateList = () => {
                     <TableCell className="capitalize hidden md:table-cell">{item.method || '-'}</TableCell>
                     <TableCell className="hidden md:table-cell">{formatDate(item.assessment_date)}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                        <FiCheck className="mr-1" /> Disetujui
-                      </Badge>
+                      {item.certificate ? (
+                        <Badge variant="outline" className="bg-green-100 text-green-800">
+                          <FiCheck className="mr-1" /> Tersertifikasi
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-blue-100 text-blue-800">
+                          <FiCheck className="mr-1" /> Disetujui
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button 
-                        variant="default" 
-                        size="sm" 
-                        onClick={() => handleAssignCertificate(item.id)}
-                        className="flex items-center gap-1 bg-green-600 hover:bg-green-700"
-                      >
-                        <FiAward className="h-4 w-4" /> Assign Sertifikat
-                      </Button>
+                      {item.certificate ? (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleDownloadCertificate(item.certificate)}
+                          className="flex items-center gap-1 text-blue-600"
+                        >
+                          <FiDownload className="h-4 w-4" /> Download Sertifikat
+                        </Button>
+                      ) : (
+                        <Button 
+                          variant="default" 
+                          size="sm" 
+                          onClick={() => handleAssignCertificate(item.id)}
+                          className="flex items-center gap-1 bg-green-600 hover:bg-green-700"
+                        >
+                          <FiAward className="h-4 w-4" /> Assign Sertifikat
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
