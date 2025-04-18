@@ -10,6 +10,14 @@ import {
     DialogTitle
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 import { useEffect, useState } from "react";
 import { FiCheck, FiEye, FiFileText, FiSearch, FiX } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
@@ -146,73 +154,63 @@ const AssessmentList = () => {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAssessments.map((item) => (
-            <Card key={item.id} className="overflow-hidden flex flex-col">
-              <CardContent className="p-5 flex flex-col flex-1">
-                <div className="border-b pb-3 mb-3">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-lg">{item.name || 'Tanpa Nama'}</h3>
-                    {renderStatusBadge(item.assessment_status)}
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    {item.email || '-'} • {item.phone_number || '-'}
-                  </p>
-                </div>
-                
-                <div className="space-y-2 mb-4">
-                  <div>
-                    <span className="text-sm font-medium">Skema Sertifikasi:</span>
-                    <p className="text-sm">{item.schema?.name || '-'}</p>
-                  </div>
-                  
-                  <div>
-                    <span className="text-sm font-medium">Metode:</span>
-                    <p className="text-sm capitalize">{item.method || '-'}</p>
-                  </div>
-                  
-                  <div>
-                    <span className="text-sm font-medium">Tanggal Asesmen:</span>
-                    <p className="text-sm">{formatDate(item.assessment_date)}</p>
-                  </div>
-                  
-                  <div>
-                    <span className="text-sm font-medium">Pendidikan Terakhir:</span>
-                    <p className="text-sm">{item.last_education_level || '-'}</p>
-                  </div>
-                  
-                  <div>
-                    <span className="text-sm font-medium">Tanggal Pengajuan:</span>
-                    <p className="text-sm">{formatDate(item.created_at)}</p>
-                  </div>
-                </div>
-                
-                <div className="flex flex-col mt-auto pt-3 border-t border-gray-100">
-                  <div className="text-sm text-gray-500 mb-3">
-                    <span className="font-medium">Status Dokumen:</span>{' '}
-                    {item.hasCompletedDocuments ? (
-                      <span className="text-green-600 flex items-center gap-1">
-                        <FiCheck className="h-4 w-4" /> Lengkap
-                      </span>
-                    ) : (
-                      <span className="text-red-600 flex items-center gap-1">
-                        <FiX className="h-4 w-4" /> Belum Lengkap
-                      </span>
-                    )}
-                  </div>
-                  
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => handleViewDetail(item)}
-                    className="flex items-center gap-1 w-full justify-center"
-                  >
-                    <FiEye className="h-4 w-4" /> Lihat Detail
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-gray-50">
+                <TableRow>
+                  <TableHead className="whitespace-nowrap font-semibold text-gray-700">Nama</TableHead>
+                  <TableHead className="whitespace-nowrap font-semibold text-gray-700">Skema Sertifikasi</TableHead>
+                  <TableHead className="whitespace-nowrap font-semibold text-gray-700 hidden md:table-cell">Metode</TableHead>
+                  <TableHead className="whitespace-nowrap font-semibold text-gray-700 hidden md:table-cell">Tanggal Asesmen</TableHead>
+                  <TableHead className="whitespace-nowrap font-semibold text-gray-700 hidden lg:table-cell">Status Dokumen</TableHead>
+                  <TableHead className="whitespace-nowrap font-semibold text-gray-700">Status Asesmen</TableHead>
+                  <TableHead className="whitespace-nowrap font-semibold text-gray-700 text-right">Aksi</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAssessments.map((item) => (
+                  <TableRow key={item.id} className="hover:bg-gray-50">
+                    <TableCell className="font-medium">
+                      <div>
+                        <p className="font-medium">{item.name || 'Tanpa Nama'}</p>
+                        <p className="text-sm text-gray-500">{item.email || '-'}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="max-w-[200px] truncate">
+                        {item.schema?.name || '-'}
+                      </div>
+                    </TableCell>
+                    <TableCell className="capitalize hidden md:table-cell">{item.method || '-'}</TableCell>
+                    <TableCell className="hidden md:table-cell">{formatDate(item.assessment_date)}</TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      {item.hasCompletedDocuments ? (
+                        <span className="text-green-600 flex items-center gap-1">
+                          <FiCheck className="h-4 w-4" /> Lengkap
+                        </span>
+                      ) : (
+                        <span className="text-red-600 flex items-center gap-1">
+                          <FiX className="h-4 w-4" /> Belum Lengkap
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell>{renderStatusBadge(item.assessment_status)}</TableCell>
+                    <TableCell className="text-right">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleViewDetail(item)}
+                        className="flex items-center gap-1"
+                      >
+                        <FiEye className="h-4 w-4" /> Detail
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       )}
 
