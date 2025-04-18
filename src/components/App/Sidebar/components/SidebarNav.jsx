@@ -1,20 +1,13 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
-import { 
-  FiHome, 
-  FiUsers, 
-  FiFileText, 
-  FiBarChart2, 
-  FiSettings, 
-  FiBell,
-  FiShield,
-  FiLayers,
+import {
+  FiFileText,
+  FiHome,
   FiImage,
-  FiUser
+  FiShield,
+  FiUsers
 } from 'react-icons/fi';
+import { useLocation } from 'react-router-dom';
 
 import SidebarNavItem from './SidebarNavItem';
-import SidebarNavGroup from './SidebarNavGroup';
 
 /**
  * Helper to check if a path matches current location
