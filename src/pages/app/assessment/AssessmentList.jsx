@@ -35,11 +35,25 @@ const AssessmentList = () => {
   const [newStatus, setNewStatus] = useState("");
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [userRole, setUserRole] = useState('');
   const itemsPerPage = 10;
 
   // Mendapatkan API URL dari variabel lingkungan
   const API_URL = import.meta.env.VITE_API_URL || window.ENV_API_URL || "http://localhost:8000/api";
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
+  useEffect(() => {
+    // Mendapatkan role user dari localStorage
+    const userDataString = localStorage.getItem('user');
+    if (userDataString) {
+      try {
+        const userData = JSON.parse(userDataString);
+        setUserRole(userData.role);
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+      }
+    }
+  }, []);
 
   // Mengambil data asesmen dari API
   const fetchAssessments = async () => {
@@ -288,7 +302,7 @@ const AssessmentList = () => {
                         >
                           <FiEye className="h-4 w-4" /> Detail
                         </Button>
-                        {item.assessment_status !== 'completed' && (
+                        {userRole == 'admin' && item.assessment_status != 'approved' && (
                           <Button 
                             variant="default" 
                             size="sm" 
@@ -532,7 +546,7 @@ const AssessmentList = () => {
             >
               Tutup
             </Button>
-            {currentAssessment && currentAssessment.assessment_status !== 'completed' && (
+            {userRole === 'admin' && currentAssessment && currentAssessment.assessment_status !== 'completed' && (
               <div className="flex gap-2">
                 <Button 
                   type="button" 

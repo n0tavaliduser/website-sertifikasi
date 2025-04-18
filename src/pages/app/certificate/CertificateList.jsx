@@ -20,11 +20,25 @@ const CertificateList = () => {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [userRole, setUserRole] = useState('');
   const itemsPerPage = 10;
 
   // Mendapatkan API URL dari variabel lingkungan
   const API_URL = import.meta.env.VITE_API_URL || window.ENV_API_URL || "http://localhost:8000/api";
   
+  useEffect(() => {
+    // Mendapatkan role user dari localStorage
+    const userDataString = localStorage.getItem('user');
+    if (userDataString) {
+      try {
+        const userData = JSON.parse(userDataString);
+        setUserRole(userData.role);
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+      }
+    }
+  }, []);
+
   // Mengambil data asesi dengan status 'approved' dari API
   const fetchApprovedAssessees = async () => {
     try {
@@ -230,14 +244,16 @@ const CertificateList = () => {
                           <FiDownload className="h-4 w-4" /> Download Sertifikat
                         </Button>
                       ) : (
-                        <Button 
-                          variant="default" 
-                          size="sm" 
-                          onClick={() => handleAssignCertificate(item.id)}
-                          className="flex items-center gap-1 bg-green-600 hover:bg-green-700"
-                        >
-                          <FiAward className="h-4 w-4" /> Assign Sertifikat
-                        </Button>
+                        userRole === 'admin' && (
+                          <Button 
+                            variant="default" 
+                            size="sm" 
+                            onClick={() => handleAssignCertificate(item.id)}
+                            className="flex items-center gap-1 bg-green-600 hover:bg-green-700"
+                          >
+                            <FiAward className="h-4 w-4" /> Assign Sertifikat
+                          </Button>
+                        )
                       )}
                     </TableCell>
                   </TableRow>
