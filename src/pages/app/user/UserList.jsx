@@ -261,7 +261,7 @@ const UserList = () => {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          onClick={() => handleOpenModal(user)}
+                          onClick={() => navigate(`/app/users/${user.id}/edit`)}
                           className="flex items-center gap-1 text-blue-600"
                         >
                           <FiEdit className="h-4 w-4" /> Edit
