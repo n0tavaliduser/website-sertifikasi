@@ -137,7 +137,7 @@ const EditUser = () => {
           </div>
         </div>
       ) : (
-        <Card className="max-w-2xl mx-auto">
+        <Card>
           <CardHeader>
             <CardTitle>Edit User Information</CardTitle>
             <CardDescription>Update user details. Fields marked with * are required.</CardDescription>

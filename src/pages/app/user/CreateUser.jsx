@@ -90,7 +90,7 @@ const CreateUser = () => {
         </div>
       )}
 
-      <Card className="max-w-2xl mx-auto">
+      <Card>
         <CardHeader>
           <CardTitle>User Information</CardTitle>
           <CardDescription>Enter the details for the new user. Default password will be "password" if left empty.</CardDescription>
