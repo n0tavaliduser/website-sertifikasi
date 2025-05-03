@@ -110,7 +110,7 @@ const SidebarNav = () => {
         <SidebarNavItem 
           to="/app/assessee" 
           icon={<FiFileText />} 
-          label="Assessee" 
+          label="Assessee" postma
           roleAccess={['admin', 'user']}
           isActive={isPathActive("/app/assessee", pathname)}
         />
@@ -120,6 +120,15 @@ const SidebarNav = () => {
           icon={<FiFileText />} 
           label="Certificate" 
           roleAccess={['admin', 'user']}
+        />
+        
+        {/* User Link */}
+        <SidebarNavItem 
+          to="/app/users" 
+          icon={<FiFileText />} 
+          label="User" 
+          roleAccess={['admin']} 
+          isActive={isPathActive("/app/users", pathname)}
         />
       </nav>
     </div>
