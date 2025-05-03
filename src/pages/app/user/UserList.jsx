@@ -14,17 +14,8 @@ const UserList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-    role: "user",
-  });
   const itemsPerPage = 10;
 
   // Get the API URL from environment variables
@@ -59,84 +50,6 @@ const UserList = () => {
   useEffect(() => {
     fetchUsers();
   }, [API_URL]);
-
-  // Handle opening the modal for adding or editing a user
-  const handleOpenModal = (user = null) => {
-    if (user) {
-      // Editing existing user
-      setFormData({
-        name: user.name,
-        email: user.email,
-        password: "", // Leave password empty when editing
-        password_confirmation: "",
-        role: user.role || "user",
-      });
-      setCurrentUser(user);
-    } else {
-      // Adding new user
-      setFormData({
-        name: "",
-        email: "",
-        password: "",
-        password_confirmation: "",
-        role: "user",
-      });
-      setCurrentUser(null);
-    }
-    setIsModalOpen(true);
-  };
-
-  // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  // Handle saving user (add or update)
-  const handleSaveUser = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    try {
-      const token = localStorage.getItem("token");
-      
-      if (currentUser) {
-        // Update existing user
-        const updateData = { ...formData };
-        // Don't send password if it's empty
-        if (!updateData.password) {
-          delete updateData.password;
-          delete updateData.password_confirmation;
-        }
-        
-        await axios.put(`${API_URL}/users/${currentUser.id}`, updateData, {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
-      } else {
-        // Add new user
-        await axios.post(`${API_URL}/users`, formData, {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
-      }
-      
-      // Refresh the user list
-      fetchUsers();
-      setIsModalOpen(false);
-    } catch (err) {
-      console.error("Error saving user:", err);
-      setError(err.response?.data?.message || "Failed to save user");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Handle deleting a user
   const handleDeleteUser = async (userId) => {
@@ -205,7 +118,7 @@ const UserList = () => {
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
           <Button 
-            onClick={() => handleOpenModal()}
+            onClick={() => navigate("/app/users/create")}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
           >
             <FiPlus className="h-4 w-4" /> Add User
@@ -355,102 +268,6 @@ const UserList = () => {
               </div>
             </div>
           )}
-        </div>
-      )}
-      
-      {/* Modal for adding/editing user */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 w-full max-w-md">
-            <h2 className="text-2xl font-bold mb-6">
-              {currentUser ? "Edit User" : "Add User"}
-            </h2>
-            <form onSubmit={handleSaveUser}>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-                  Name
-                </label>
-                <Input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                  Email
-                </label>
-                <Input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-                  Password {currentUser && "(leave empty to keep current)"}
-                </label>
-                <Input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required={!currentUser}
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password_confirmation">
-                  Confirm Password
-                </label>
-                <Input
-                  type="password"
-                  id="password_confirmation"
-                  name="password_confirmation"
-                  value={formData.password_confirmation}
-                  onChange={handleInputChange}
-                  required={!currentUser}
-                />
-              </div>
-              <div className="mb-6">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="role">
-                  Role
-                </label>
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleInputChange}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                >
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <div className="flex items-center justify-between">
-                <Button
-                  type="submit"
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  Save
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  variant="outline"
-                  className="border-gray-300"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </div>
         </div>
       )}
     </div>
