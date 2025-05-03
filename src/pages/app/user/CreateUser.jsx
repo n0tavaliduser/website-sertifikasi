@@ -53,7 +53,7 @@ const CreateUser = () => {
       });
       
       if (response.data.success) {
-        navigate("/app/user");
+        navigate("/app/users");
       } else {
         setError(response.data.message || "Failed to create user");
       }
@@ -76,7 +76,7 @@ const CreateUser = () => {
       <div className="mb-6">
         <Button 
           variant="outline" 
-          onClick={() => navigate("/app/user")}
+          onClick={() => navigate("/app/users")}
           className="flex items-center gap-2 mb-4"
         >
           <FiArrowLeft className="h-4 w-4" /> Back to User List
@@ -193,7 +193,7 @@ const CreateUser = () => {
             <Button 
               type="button" 
               variant="outline" 
-              onClick={() => navigate("/app/user")}
+              onClick={() => navigate("/app/users")}
             >
               Cancel
             </Button>
