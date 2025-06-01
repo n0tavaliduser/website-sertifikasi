@@ -101,11 +101,13 @@ const InstanceList = () => {
           try {
             // Jika format SQL datetime (YYYY-MM-DD HH:MM:SS), convert ke datetime-local
             if (time.assessment_time.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
-              // Parse sebagai waktu Jakarta dan konversi ke timezone lokal browser
-              const jakartaTime = time.assessment_time.replace(' ', 'T') + '+07:00'; // Tambah timezone Jakarta
-              const localDate = new Date(jakartaTime);
+              // Anggap waktu dari backend adalah waktu Jakarta, konversi langsung ke format datetime-local
+              // tanpa perubahan timezone karena user input dan display harus konsisten
+              const [datePart, timePart] = time.assessment_time.split(' ');
+              const [hour, minute] = timePart.split(':');
               
-              return localDate.toISOString().slice(0, 16);
+              // Format langsung ke datetime-local tanpa konversi timezone
+              return `${datePart}T${hour}:${minute}`;
             }
             // Jika sudah dalam format datetime-local, gunakan langsung
             else if (time.assessment_time.includes('T') || time.assessment_time.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/)) {
