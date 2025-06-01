@@ -1,14 +1,12 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
     Dialog,
     DialogContent,
     DialogDescription,
     DialogFooter,
     DialogHeader,
-    DialogTitle,
-    DialogTrigger
+    DialogTitle
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { 
@@ -170,11 +168,7 @@ const AssessmentList = () => {
       }
     } catch (err) {
       console.error("Error updating assessment status:", err);
-      toast({
-        title: "Gagal",
-        description: err.message || "Terjadi kesalahan saat memperbarui status asesmen",
-        variant: "destructive",
-      });
+      alert(err.message || "Terjadi kesalahan saat memperbarui status asesmen");
     } finally {
       setUpdatingStatus(false);
     }
