@@ -296,7 +296,7 @@ const AssessmentList = () => {
                         >
                           <FiEye className="h-4 w-4" /> Detail
                         </Button>
-                        {userRole == 'admin' && item.assessment_status != 'approved' && (
+                        {userRole == 'admin' || item.assessment_status == 'approved' && (
                           <Button 
                             variant="default" 
                             size="sm" 
