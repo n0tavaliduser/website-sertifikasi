@@ -130,6 +130,15 @@ const SidebarNav = () => {
           roleAccess={['admin']} 
           isActive={isPathActive("/app/users", pathname)}
         />
+        
+        {/* Assessor Link */}
+        <SidebarNavItem 
+          to="/app/assessor" 
+          icon={<FiFileText />} 
+          label="Assessor" 
+          roleAccess={['admin']} 
+          isActive={isPathActive("/app/assessor", pathname)}
+        />
       </nav>
     </div>
   );
