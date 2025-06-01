@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { FiSearch, FiAward, FiCheck, FiLoader, FiChevronLeft, FiChevronRight, FiDownload } from "react-icons/fi";
+import { FiSearch, FiAward, FiCheck, FiLoader, FiChevronLeft, FiChevronRight, FiDownload, FiEdit } from "react-icons/fi";
 
 const CertificateList = () => {
   const navigate = useNavigate();
@@ -262,7 +262,7 @@ const CertificateList = () => {
                         </Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right flex items-center gap-2">
                       {item.certificate ? (
                         <Button 
                           variant="outline" 
@@ -284,6 +284,14 @@ const CertificateList = () => {
                           </Button>
                         )
                       )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate(`/app/assessee/${item.id}/edit`)}
+                      className="flex items-center gap-1 text-yellow-600"
+                    >
+                      <FiEdit className="h-4 w-4" /> Edit
+                    </Button>
                     </TableCell>
                   </TableRow>
                 ))}
