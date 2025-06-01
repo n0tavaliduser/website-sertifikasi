@@ -54,7 +54,7 @@ const AssignAssesseeCertificate = () => {
         
         if (result.success && result.data) {
           // Memastikan assessee memiliki status approved
-          if (result.data.assessment_status !== 'approved') {
+          if (!['approved', 'completed'].includes(result.data.assessment_status)) {
             setError("Asesi belum disetujui untuk mendapatkan sertifikat");
             setLoading(false);
             return;
