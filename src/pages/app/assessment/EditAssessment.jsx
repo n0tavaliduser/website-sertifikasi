@@ -191,14 +191,44 @@ const EditAssessment = () => {
       setSaving(true);
       const token = localStorage.getItem('token');
       
+      // Create FormData for file uploads
+      const formDataToSend = new FormData();
+      
+      // Add all form fields to FormData
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== null && formData[key] !== undefined) {
+          // Handle file objects
+          if (formData[key] instanceof File) {
+            formDataToSend.append(key, formData[key]);
+          }
+          // Handle arrays (supporting documents)
+          else if (Array.isArray(formData[key])) {
+            formData[key].forEach((item, index) => {
+              if (item instanceof File) {
+                formDataToSend.append(`${key}[${index}]`, item);
+              } else {
+                formDataToSend.append(`${key}[${index}]`, item);
+              }
+            });
+          }
+          // Handle regular form fields
+          else {
+            formDataToSend.append(key, formData[key]);
+          }
+        }
+      });
+      
+      // Add _method for Laravel PUT request
+      formDataToSend.append('_method', 'PUT');
+      
       const response = await fetch(`${API_URL}/assessee/${id}`, {
-        method: 'PUT',
+        method: 'POST', // Use POST with _method=PUT for file uploads
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
           'Accept': 'application/json'
+          // Don't set Content-Type, let browser set it with boundary for multipart/form-data
         },
-        body: JSON.stringify(formData)
+        body: formDataToSend
       });
       
       if (!response.ok) {
