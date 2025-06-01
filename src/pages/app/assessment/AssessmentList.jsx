@@ -296,16 +296,14 @@ const AssessmentList = () => {
                         >
                           <FiEye className="h-4 w-4" /> Detail
                         </Button>
-                        {userRole == 'admin' || item.assessment_status == 'approved' && (
-                          <Button 
-                            variant="default" 
-                            size="sm" 
-                            onClick={() => navigate(`/app/assessee/${item.id}/edit`)}
-                            className="flex items-center gap-1 bg-blue-600"
-                          >
-                            <FiEdit className="h-4 w-4" /> Edit
-                          </Button>
-                        )}
+                        <Button 
+                          variant="default" 
+                          size="sm" 
+                          onClick={() => navigate(`/app/assessee/${item.id}/edit`)}
+                          className="flex items-center gap-1 bg-blue-600"
+                        >
+                          <FiEdit className="h-4 w-4" /> Edit
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
