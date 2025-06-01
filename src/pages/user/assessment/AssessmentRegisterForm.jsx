@@ -4,7 +4,6 @@ import {
   FaCheckCircle
 } from "react-icons/fa";
 import DocumentUpload from "./DocumentUpload";
-import APL02Upload from "./APL02Upload";
 import Confirmation from "./Confirmation";
 
 const AssessmentRegisterForm = () => {
@@ -44,11 +43,7 @@ const AssessmentRegisterForm = () => {
     statement: null,
     apl01: null,
     
-    // Step 4: APL 02
-    apl02: null,
-    supportingDocuments: [],
-    
-    // Step 5: Konfirmasi
+    // Step 4: Konfirmasi
     hasCompletedAssessment: false,
     requestCertificate: false
   });
@@ -63,8 +58,7 @@ const AssessmentRegisterForm = () => {
     familyCard: null,
     photo: null,
     instanceSupport: null,
-    apl01: null,
-    apl02: null
+    apl01: null
   });
   
   // Ambil data instances dari API
@@ -338,48 +332,6 @@ const AssessmentRegisterForm = () => {
     });
   };
   
-  // Handle supporting document file additions
-  const handleSupportingDocumentAdd = (e) => {
-    const files = e.target.files;
-    
-    if (files && files.length > 0) {
-      // Validate each file
-      const newFiles = Array.from(files).filter(file => {
-        // Check size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          setError(`File ${file.name} terlalu besar. Maksimal 5MB`);
-          return false;
-        }
-        
-        // Check type
-        const validTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-        if (!validTypes.includes(file.type)) {
-          setError(`File ${file.name} tidak didukung. Gunakan PDF, JPEG, atau PNG`);
-          return false;
-        }
-        
-        return true;
-      });
-      
-      if (newFiles.length > 0) {
-        setFormData({
-          ...formData,
-          supportingDocuments: [...formData.supportingDocuments, ...newFiles]
-        });
-      }
-    }
-  };
-  
-  // Remove a supporting document
-  const handleRemoveSupportingDocument = (index) => {
-    const updatedDocs = [...formData.supportingDocuments];
-    updatedDocs.splice(index, 1);
-    setFormData({
-      ...formData,
-      supportingDocuments: updatedDocs
-    });
-  };
-  
   // Validation for each step
   const validateStep = (step) => {
     let errors = {};
@@ -418,6 +370,7 @@ const AssessmentRegisterForm = () => {
     
     switch (step) {
       case 1:
+        {
         // Validate Profil & Pendaftaran
         if (!formData.fullName.trim()) {
           errors.fullName = "Nama lengkap wajib diisi";
@@ -473,8 +426,10 @@ const AssessmentRegisterForm = () => {
           isValid = false;
         }
         break;
+        }
         
       case 2:
+        {
         // Validate Skema & Metode
         if (!formData.schemaId) {
           errors.schemaId = "Skema sertifikasi wajib dipilih";
@@ -491,8 +446,10 @@ const AssessmentRegisterForm = () => {
           isValid = false;
         }
         break;
+        }
       
       case 3:
+        {
         // Validate document uploads
         const checkFile = (fieldName, errorMessage) => {
           // Cek di formData dulu
@@ -529,33 +486,16 @@ const AssessmentRegisterForm = () => {
             familyCard: formData.familyCard,
             photo: formData.photo,
             instanceSupport: formData.instanceSupport,
+            apl01: formData.apl01,
           },
           tempFiles,
           errors
         });
         break;
+        }
       
       case 4:
-        // Validate APL 02
-        if (!isValidFile(formData.apl02) && !isValidFile(tempFiles.apl02)) {
-          errors.apl02 = "Dokumen APL 02 wajib diunggah";
-          isValid = false;
-        } else if (isValidFile(tempFiles.apl02) && !isValidFile(formData.apl02)) {
-          // Update formData dengan nilai dari tempFiles
-          setFormData(prev => ({
-            ...prev,
-            apl02: tempFiles.apl02
-          }));
-        }
-        
-        // Debug info
-        console.log("Validasi APL 02:", {
-          apl02: formData.apl02,
-          errors: errors
-        });
-        break;
-      
-      case 5:
+        {
         // Validate confirmations
         if (!formData.hasCompletedAssessment) {
           errors.hasCompletedAssessment = "Anda harus menyetujui pernyataan ini untuk melanjutkan";
@@ -567,6 +507,7 @@ const AssessmentRegisterForm = () => {
           isValid = false;
         }
         break;
+        }
     }
     
     setFormErrors(errors);
@@ -593,7 +534,7 @@ const AssessmentRegisterForm = () => {
         case 'apl01':
           endpoint = `/assessee/template/download/apl01`;
           break;
-        case 'apl02':
+        case 'apl02': {
           // Jika apl02Type diberikan, gunakan itu
           const type = apl02Type || (formData.certificationMethod === 'observasi' ? 'observation' : 
                                     formData.certificationMethod === 'portofolio' ? 'portofolio' : '');
@@ -604,6 +545,7 @@ const AssessmentRegisterForm = () => {
           
           endpoint = `/assessee/template/download/apl02?type=${type}`;
           break;
+        }
         case 'apl02_observasi':
           endpoint = `/assessee/template/download/apl02?type=observation`;
           break;
@@ -678,7 +620,7 @@ const AssessmentRegisterForm = () => {
     }
     
     if (validateStep(currentStep)) {
-      if (currentStep === 5) {
+      if (currentStep === 4) {
         // Jika ini adalah langkah terakhir, lakukan submit form
         handleSubmit();
       } else {
@@ -763,19 +705,6 @@ const AssessmentRegisterForm = () => {
       if (formData.apl01) {
         const file = isMockFile(formData.apl01) ? createDummyFile(formData.apl01) : formData.apl01;
         formDataToSend.append('apl01', file);
-      }
-      if (formData.apl02) {
-        const file = isMockFile(formData.apl02) ? createDummyFile(formData.apl02) : formData.apl02;
-        formDataToSend.append('apl02', file);
-      }
-      
-      // 4. Dokumen pendukung (jika ada)
-      if (formData.supportingDocuments && formData.supportingDocuments.length > 0) {
-        // Kirim sebagai array files
-        formData.supportingDocuments.forEach((doc, index) => {
-          const file = isMockFile(doc) ? createDummyFile(doc) : doc;
-          formDataToSend.append(`supporting_documents[${index}]`, file);
-        });
       }
       
       // Log data yang akan dikirim
@@ -1101,6 +1030,7 @@ const AssessmentRegisterForm = () => {
         );
       
       case 3:
+        {
         // Integrasikan komponen DocumentUpload
         return (
           <div>
@@ -1112,23 +1042,10 @@ const AssessmentRegisterForm = () => {
             />
           </div>
         );
-      
-      case 4:
-        // APL 02 Upload component
-        return (
-          <div>
-            <APL02Upload
-              formData={formData}
-              formErrors={formErrors}
-              handleFileChange={handleFileChangeWithTempStorage}
-              handleDownloadTemplate={handleDownloadTemplate}
-              handleSupportingDocumentAdd={handleSupportingDocumentAdd}
-              handleRemoveSupportingDocument={handleRemoveSupportingDocument}
-            />
-          </div>
-        );
+        }
         
-      case 5:
+      case 4:
+        {
         // Confirmation component
         return (
           <div>
@@ -1139,6 +1056,7 @@ const AssessmentRegisterForm = () => {
             />
           </div>
         );
+        }
       
       default:
         return null;
@@ -1151,8 +1069,7 @@ const AssessmentRegisterForm = () => {
       { number: 1, title: "Profil & Pendaftaran" },
       { number: 2, title: "Skema & Metode" },
       { number: 3, title: "Upload Dokumen" },
-      { number: 4, title: "APL 02" },
-      { number: 5, title: "Konfirmasi" }
+      { number: 4, title: "Konfirmasi" }
     ];
     
     return (
@@ -1259,7 +1176,7 @@ const AssessmentRegisterForm = () => {
           </div>
         )}
         
-        {loading && currentStep === 5 && (
+        {loading && currentStep === 4 && (
           <div className="mb-6 p-4 bg-blue-100 text-blue-700 rounded-md flex items-center">
             <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -1303,7 +1220,7 @@ const AssessmentRegisterForm = () => {
                 </svg>
                 Memproses...
               </>
-            ) : currentStep === 5 ? (
+            ) : currentStep === 4 ? (
               'Kirim Pendaftaran'
             ) : (
               'Selanjutnya'

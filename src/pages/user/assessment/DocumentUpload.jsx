@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { FaCloudUploadAlt, FaFileAlt, FaTrash, FaExclamationCircle } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
+import { FaCloudUploadAlt, FaFileAlt, FaTrash, FaExclamationCircle, FaDownload } from 'react-icons/fa';
 
 // Komponen sederhana tanpa ketergantungan pada props handleChange dari parent
 const DocumentUpload = ({ formData, formErrors, handleChange, handleFileChange, handleDownloadTemplate }) => {
@@ -10,6 +10,7 @@ const DocumentUpload = ({ formData, formErrors, handleChange, handleFileChange, 
     familyCard: null,
     photo: null,
     instanceSupport: null,
+    apl01: null,
     supportingDocuments: []
   });
 
@@ -25,6 +26,7 @@ const DocumentUpload = ({ formData, formErrors, handleChange, handleFileChange, 
         familyCard: formData.familyCard || null,
         photo: formData.photo || null,
         instanceSupport: formData.instanceSupport || null,
+        apl01: formData.apl01 || null,
         supportingDocuments: formData.supportingDocuments || []
       });
     }
@@ -251,6 +253,24 @@ const DocumentUpload = ({ formData, formErrors, handleChange, handleFileChange, 
           {renderDocument('familyCard', 'Kartu Keluarga')}
           {renderDocument('photo', 'Pas Foto (Latar Belakang Merah)')}
           {renderDocument('instanceSupport', 'Surat Dukungan Instansi')}
+        </div>
+        
+        <div className="pt-4 border-t">
+          <h3 className="text-lg font-medium">APL 01 (Formulir Permohonan Sertifikasi Kompetensi)</h3>
+          <p className="text-sm text-gray-500 mt-1">Download template, isi, dan unggah kembali</p>
+          
+          <div className="mt-4 mb-4">
+            <button
+              type="button"
+              onClick={() => handleDownloadTemplate && handleDownloadTemplate('apl01')}
+              className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none"
+            >
+              <FaDownload className="mr-2" />
+              Download Template APL 01
+            </button>
+          </div>
+          
+          {renderDocument('apl01', 'APL 01 (Yang sudah diisi) - Opsional', false)}
         </div>
         
         <div className="pt-4 border-t">
