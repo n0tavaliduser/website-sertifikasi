@@ -125,27 +125,114 @@ const AssessmentRegisterForm = () => {
     fetchSchemas();
   }, []);
   
-  // Generate dummy assessment dates (sebagai contoh)
+  // Ambil assessment times berdasarkan instance yang dipilih
   useEffect(() => {
-    const generateDates = () => {
-      const dates = [];
-      const currentDate = new Date();
-      
-      for (let i = 1; i <= 5; i++) {
-        const futureDate = new Date();
-        futureDate.setDate(currentDate.getDate() + (i * 7)); // Add weeks
-        dates.push({
-          id: i,
-          date: futureDate.toISOString().split('T')[0]
-        });
+    const fetchAssessmentTimes = async () => {
+      if (!formData.instanceId) {
+        setAssessmentDates([]);
+        return;
       }
-      
-      setAssessmentDates(dates);
+
+      try {
+        setLoading(true);
+        const API_URL = import.meta.env.VITE_API_URL || window.ENV_API_URL || "http://localhost:8000/api";
+        const token = localStorage.getItem('token');
+        
+        const response = await fetch(`${API_URL}/instances/${formData.instanceId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch instance details');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.data && data.data.instance_assessment_times) {
+          // Konversi assessment times ke format yang bisa digunakan
+          const assessmentTimes = data.data.instance_assessment_times.map((time, index) => {
+            // Format datetime untuk display yang readable
+            let displayTime = time.assessment_time;
+            let dateValue = time.assessment_time;
+            
+            try {
+              // Jika format SQL datetime (YYYY-MM-DD HH:MM:SS), convert ke readable
+              if (time.assessment_time.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
+                // Parse waktu sebagai waktu Jakarta dan format untuk display
+                const [datePart, timePart] = time.assessment_time.split(' ');
+                const [year, month, day] = datePart.split('-');
+                const [hour, minute] = timePart.split(':');
+                
+                // Buat date object untuk display
+                const displayDate = new Date();
+                displayDate.setFullYear(parseInt(year), parseInt(month) - 1, parseInt(day));
+                displayDate.setHours(parseInt(hour), parseInt(minute), 0, 0);
+                
+                // Format untuk display dalam bahasa Indonesia
+                const options = { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: false,
+                  weekday: 'long'
+                };
+                displayTime = displayDate.toLocaleDateString('id-ID', options);
+                
+                // Untuk value, gunakan format yang sama dengan backend
+                dateValue = time.assessment_time;
+              }
+            } catch {
+              // Jika gagal convert, gunakan format asli
+              displayTime = time.assessment_time;
+              dateValue = time.assessment_time;
+            }
+            
+            return {
+              id: time.id || index + 1,
+              date: dateValue,
+              displayText: displayTime
+            };
+          });
+          
+          setAssessmentDates(assessmentTimes);
+        } else {
+          setAssessmentDates([]);
+        }
+      } catch (err) {
+        console.error('Error fetching assessment times:', err);
+        setError('Gagal memuat waktu asesmen untuk instansi ini.');
+        setAssessmentDates([]);
+      } finally {
+        setLoading(false);
+      }
     };
     
-    generateDates();
-  }, []);
-  
+    fetchAssessmentTimes();
+  }, [formData.instanceId]);
+
+  // Reset assessment date ketika instance berubah
+  useEffect(() => {
+    if (formData.instanceId) {
+      setFormData(prev => ({
+        ...prev,
+        assessmentDate: "" // Reset pilihan tanggal
+      }));
+      
+      // Clear error untuk assessment date
+      if (formErrors.assessmentDate) {
+        setFormErrors(prev => ({
+          ...prev,
+          assessmentDate: null
+        }));
+      }
+    }
+  }, [formData.instanceId]);
+
   // Ambil data pengguna dari API
   useEffect(() => {
     const fetchUserData = async () => {
@@ -1002,25 +1089,30 @@ const AssessmentRegisterForm = () => {
                 <label htmlFor="assessmentDate" className="block text-sm font-medium text-gray-700">
                   Pilih Tanggal Pelaksanaan <span className="text-red-500">*</span>
                 </label>
-                <select
-                  id="assessmentDate"
-                  name="assessmentDate"
-                  value={formData.assessmentDate}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md ${formErrors.assessmentDate ? 'border-red-500' : 'border-gray-300'}`}
-                >
-                  <option value="">Pilih Tanggal Pelaksanaan</option>
-                  {assessmentDates.map(date => (
-                    <option key={date.id} value={date.date}>
-                      {new Date(date.date).toLocaleDateString('id-ID', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </option>
-                  ))}
-                </select>
+                {!formData.instanceId ? (
+                  <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500">
+                    Pilih instansi terlebih dahulu
+                  </div>
+                ) : assessmentDates.length === 0 ? (
+                  <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-yellow-50 text-yellow-700">
+                    Tidak ada jadwal asesmen tersedia untuk instansi ini
+                  </div>
+                ) : (
+                  <select
+                    id="assessmentDate"
+                    name="assessmentDate"
+                    value={formData.assessmentDate}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md ${formErrors.assessmentDate ? 'border-red-500' : 'border-gray-300'}`}
+                  >
+                    <option value="">Pilih Tanggal Pelaksanaan</option>
+                    {assessmentDates.map(date => (
+                      <option key={date.id} value={date.date}>
+                        {date.displayText}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 {formErrors.assessmentDate && (
                   <p className="text-sm text-red-500">{formErrors.assessmentDate}</p>
                 )}
