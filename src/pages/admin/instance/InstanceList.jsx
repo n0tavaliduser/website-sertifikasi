@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { FiPlus, FiEdit2, FiTrash2, FiSearch } from "react-icons/fi";
+import { useState, useEffect } from "react";
+import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiX, FiClock } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -31,7 +31,10 @@ const InstanceList = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [currentInstance, setCurrentInstance] = useState(null);
-  const [formData, setFormData] = useState({ name: "" });
+  const [formData, setFormData] = useState({ 
+    name: "",
+    assessment_times: [new Date().toISOString().slice(0, 16)] // Default ke datetime sekarang
+  });
   const [formErrors, setFormErrors] = useState({});
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -80,7 +83,10 @@ const InstanceList = () => {
 
   // Fungsi untuk membuka modal tambah
   const handleAdd = () => {
-    setFormData({ name: "" });
+    setFormData({ 
+      name: "",
+      assessment_times: [new Date().toISOString().slice(0, 16)] // Default ke datetime sekarang
+    });
     setFormErrors({});
     setShowAddModal(true);
   };
@@ -88,7 +94,42 @@ const InstanceList = () => {
   // Fungsi untuk membuka modal edit
   const handleEdit = (instance) => {
     setCurrentInstance(instance);
-    setFormData({ name: instance.name });
+    
+    // Ambil assessment times dari instance atau set default
+    const assessmentTimes = instance.instance_assessment_times && instance.instance_assessment_times.length > 0
+      ? instance.instance_assessment_times.map(time => {
+          try {
+            // Jika format SQL datetime (YYYY-MM-DD HH:MM:SS), convert ke datetime-local
+            if (time.assessment_time.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
+              // Anggap waktu dari backend adalah waktu Jakarta, konversi langsung ke format datetime-local
+              // tanpa perubahan timezone karena user input dan display harus konsisten
+              const [datePart, timePart] = time.assessment_time.split(' ');
+              const [hour, minute] = timePart.split(':');
+              
+              // Format langsung ke datetime-local tanpa konversi timezone
+              return `${datePart}T${hour}:${minute}`;
+            }
+            // Jika sudah dalam format datetime-local, gunakan langsung
+            else if (time.assessment_time.includes('T') || time.assessment_time.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/)) {
+              return time.assessment_time.slice(0, 16);
+            }
+            // Jika format lama (text), convert ke datetime hari ini
+            else {
+              const today = new Date().toISOString().slice(0, 10);
+              return `${today}T09:00`; // Default jam 9 pagi
+            }
+          } catch {
+            // Jika gagal convert, gunakan default
+            const today = new Date().toISOString().slice(0, 10);
+            return `${today}T09:00`;
+          }
+        })
+      : [new Date().toISOString().slice(0, 16)];
+    
+    setFormData({ 
+      name: instance.name,
+      assessment_times: assessmentTimes
+    });
     setFormErrors({});
     setShowEditModal(true);
   };
@@ -110,6 +151,37 @@ const InstanceList = () => {
     }
   };
 
+  // Handle perubahan assessment time
+  const handleAssessmentTimeChange = (index, value) => {
+    const newAssessmentTimes = [...formData.assessment_times];
+    newAssessmentTimes[index] = value;
+    setFormData({ ...formData, assessment_times: newAssessmentTimes });
+    
+    // Bersihkan error untuk assessment times
+    if (formErrors.assessment_times) {
+      setFormErrors({ ...formErrors, assessment_times: null });
+    }
+  };
+
+  // Tambah row assessment time
+  const addAssessmentTime = () => {
+    const newDateTime = new Date();
+    newDateTime.setHours(newDateTime.getHours() + 1); // Tambah 1 jam dari waktu sekarang
+    
+    setFormData({
+      ...formData,
+      assessment_times: [...formData.assessment_times, newDateTime.toISOString().slice(0, 16)]
+    });
+  };
+
+  // Hapus row assessment time
+  const removeAssessmentTime = (index) => {
+    if (formData.assessment_times.length > 1) {
+      const newAssessmentTimes = formData.assessment_times.filter((_, i) => i !== index);
+      setFormData({ ...formData, assessment_times: newAssessmentTimes });
+    }
+  };
+
   // Validasi form
   const validateForm = () => {
     const errors = {};
@@ -117,9 +189,55 @@ const InstanceList = () => {
     if (!formData.name.trim()) {
       errors.name = "Nama instance wajib diisi";
     }
+
+    // Validasi assessment times
+    const validAssessmentTimes = formData.assessment_times.filter(time => time.trim() !== "");
+    if (validAssessmentTimes.length === 0) {
+      errors.assessment_times = "Minimal satu waktu asesmen harus diisi";
+    } else {
+      // Validasi bahwa waktu tidak boleh di masa lalu
+      const now = new Date();
+      const hasInvalidTime = validAssessmentTimes.some(time => {
+        const selectedTime = new Date(time);
+        return selectedTime <= now;
+      });
+      
+      if (hasInvalidTime) {
+        errors.assessment_times = "Waktu asesmen tidak boleh di masa lalu";
+      }
+    }
     
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
+  };
+
+  // Prepare data untuk dikirim ke API
+  const prepareFormData = () => {
+    const dataToSend = {
+      name: formData.name.trim()
+    };
+
+    // Filter assessment times yang tidak kosong dan format ke datetime SQL dengan timezone Asia/Jakarta
+    const validAssessmentTimes = formData.assessment_times
+      .filter(time => time.trim() !== "")
+      .map(time => {
+        // Buat date object dari input datetime-local
+        const inputDate = new Date(time);
+        
+        // Konversi ke timezone Asia/Jakarta menggunakan toLocaleString
+        const jakartaTime = inputDate.toLocaleString('sv-SE', {
+          timeZone: 'Asia/Jakarta'
+        });
+        
+        // Format sudah YYYY-MM-DD HH:MM:SS, tinggal ganti T dengan spasi jika ada
+        return jakartaTime.replace('T', ' ');
+      });
+
+    if (validAssessmentTimes.length > 0) {
+      dataToSend.assessment_times = validAssessmentTimes;
+    }
+
+    return dataToSend;
   };
 
   // Handle submit form tambah
@@ -134,6 +252,8 @@ const InstanceList = () => {
       setActionLoading(true);
       
       const token = localStorage.getItem('token');
+      const dataToSend = prepareFormData();
+      
       const response = await fetch(`${API_URL}/instances`, {
         method: 'POST',
         headers: {
@@ -141,7 +261,7 @@ const InstanceList = () => {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(dataToSend)
       });
       
       const result = await response.json();
@@ -176,6 +296,8 @@ const InstanceList = () => {
       setActionLoading(true);
       
       const token = localStorage.getItem('token');
+      const dataToSend = prepareFormData();
+      
       const response = await fetch(`${API_URL}/instances/${currentInstance.id}`, {
         method: 'PUT',
         headers: {
@@ -183,7 +305,7 @@ const InstanceList = () => {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(dataToSend)
       });
       
       const result = await response.json();
@@ -237,6 +359,58 @@ const InstanceList = () => {
     }
   };
 
+  // Render assessment times untuk tampilan tabel
+  const renderAssessmentTimes = (instance) => {
+    if (!instance.instance_assessment_times || instance.instance_assessment_times.length === 0) {
+      return <span className="text-gray-400 italic">Belum ada waktu asesmen</span>;
+    }
+
+    return (
+      <div className="space-y-1">
+        {instance.instance_assessment_times.map((time) => {
+          // Format datetime untuk display yang readable
+          let displayTime = time.assessment_time;
+          
+          try {
+            // Jika format SQL datetime (YYYY-MM-DD HH:MM:SS), convert ke readable
+            if (time.assessment_time.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
+              // Parse waktu sebagai waktu Jakarta dan format untuk display
+              const [datePart, timePart] = time.assessment_time.split(' ');
+              const [year, month, day] = datePart.split('-');
+              const [hour, minute] = timePart.split(':');
+              
+              // Buat date object untuk display
+              const displayDate = new Date();
+              displayDate.setFullYear(parseInt(year), parseInt(month) - 1, parseInt(day));
+              displayDate.setHours(parseInt(hour), parseInt(minute), 0, 0);
+              
+              // Format untuk display dalam bahasa Indonesia
+              const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+              };
+              displayTime = displayDate.toLocaleDateString('id-ID', options);
+            }
+          } catch {
+            // Jika gagal convert, gunakan format asli
+            displayTime = time.assessment_time;
+          }
+          
+          return (
+            <div key={time.id} className="flex items-center text-sm">
+              <FiClock className="mr-1 h-3 w-3 text-gray-400" />
+              <span className="text-xs">{displayTime}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
@@ -283,6 +457,7 @@ const InstanceList = () => {
                 <TableHead className="w-[60px] text-center font-bold text-gray-500">No</TableHead>
                 <TableHead className="font-bold text-gray-500">Nama Instance</TableHead>
                 <TableHead className="font-bold text-gray-500">Slug</TableHead>
+                <TableHead className="font-bold text-gray-500">Waktu Asesmen</TableHead>
                 <TableHead className="w-[120px] text-right font-bold text-gray-500">Aksi</TableHead>
               </TableRow>
             </TableHeader>
@@ -292,6 +467,7 @@ const InstanceList = () => {
                   <TableCell className="text-center">{index + 1}</TableCell>
                   <TableCell className="font-medium">{instance.name}</TableCell>
                   <TableCell>{instance.slug}</TableCell>
+                  <TableCell>{renderAssessmentTimes(instance)}</TableCell>
                   <TableCell className="flex justify-end gap-2">
                     <Button
                       variant="outline"
@@ -319,7 +495,7 @@ const InstanceList = () => {
 
       {/* Modal Tambah Instance */}
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Tambah Instance</DialogTitle>
             <DialogDescription>
@@ -341,6 +517,54 @@ const InstanceList = () => {
               {formErrors.name && (
                 <p className="text-sm text-red-500">{formErrors.name}</p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Waktu Asesmen</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addAssessmentTime}
+                  className="flex items-center gap-1"
+                >
+                  <FiPlus className="h-3 w-3" /> Tambah
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                {formData.assessment_times.map((time, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <Input
+                      type="datetime-local"
+                      value={time}
+                      onChange={(e) => handleAssessmentTimeChange(index, e.target.value)}
+                      className="flex-1"
+                      min={new Date().toISOString().slice(0, 16)} // Tidak bisa pilih waktu yang sudah lewat
+                    />
+                    {formData.assessment_times.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeAssessmentTime(index)}
+                        className="flex items-center gap-1 text-red-500 hover:text-red-700"
+                      >
+                        <FiX className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              {formErrors.assessment_times && (
+                <p className="text-sm text-red-500">{formErrors.assessment_times}</p>
+              )}
+              
+              <p className="text-xs text-gray-500">
+                Pilih tanggal dan waktu asesmen. Waktu yang dipilih tidak boleh di masa lalu.
+              </p>
             </div>
             
             <DialogFooter>
@@ -371,7 +595,7 @@ const InstanceList = () => {
 
       {/* Modal Edit Instance */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Instance</DialogTitle>
             <DialogDescription>
@@ -393,6 +617,54 @@ const InstanceList = () => {
               {formErrors.name && (
                 <p className="text-sm text-red-500">{formErrors.name}</p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Waktu Asesmen</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addAssessmentTime}
+                  className="flex items-center gap-1"
+                >
+                  <FiPlus className="h-3 w-3" /> Tambah
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                {formData.assessment_times.map((time, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <Input
+                      type="datetime-local"
+                      value={time}
+                      onChange={(e) => handleAssessmentTimeChange(index, e.target.value)}
+                      className="flex-1"
+                      min={new Date().toISOString().slice(0, 16)} // Tidak bisa pilih waktu yang sudah lewat
+                    />
+                    {formData.assessment_times.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeAssessmentTime(index)}
+                        className="flex items-center gap-1 text-red-500 hover:text-red-700"
+                      >
+                        <FiX className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              {formErrors.assessment_times && (
+                <p className="text-sm text-red-500">{formErrors.assessment_times}</p>
+              )}
+              
+              <p className="text-xs text-gray-500">
+                Pilih tanggal dan waktu asesmen. Waktu yang dipilih tidak boleh di masa lalu.
+              </p>
             </div>
             
             <DialogFooter>
@@ -427,8 +699,8 @@ const InstanceList = () => {
           <DialogHeader>
             <DialogTitle>Konfirmasi Hapus</DialogTitle>
             <DialogDescription>
-              Apakah Anda yakin ingin menghapus instance "{currentInstance?.name}"? 
-              Tindakan ini tidak dapat dibatalkan.
+              Apakah Anda yakin ingin menghapus instance &ldquo;{currentInstance?.name}&rdquo;? 
+              Tindakan ini tidak dapat dibatalkan dan akan menghapus semua waktu asesmen terkait.
             </DialogDescription>
           </DialogHeader>
           

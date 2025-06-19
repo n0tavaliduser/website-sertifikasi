@@ -1,5 +1,4 @@
-import React from 'react';
-import { FaCheck, FaInfoCircle } from 'react-icons/fa';
+import { FaInfoCircle } from 'react-icons/fa';
 
 const Confirmation = ({ formData, formErrors, handleChange }) => {
   return (
@@ -121,16 +120,6 @@ const Confirmation = ({ formData, formErrors, handleChange }) => {
               <li className="text-sm">
                 <span className={formData.apl01 ? 'text-green-600 font-medium' : 'text-red-600'}>
                   {formData.apl01 ? '✓' : '✗'} APL 01
-                </span>
-              </li>
-              <li className="text-sm">
-                <span className={formData.apl02 ? 'text-green-600 font-medium' : 'text-red-600'}>
-                  {formData.apl02 ? '✓' : '✗'} APL 02
-                </span>
-              </li>
-              <li className="text-sm">
-                <span className={formData.supportingDocuments.length > 0 ? 'text-green-600 font-medium' : 'text-gray-600'}>
-                  {formData.supportingDocuments.length > 0 ? '✓' : '○'} Dokumen Pendukung ({formData.supportingDocuments.length} dokumen)
                 </span>
               </li>
             </ul>

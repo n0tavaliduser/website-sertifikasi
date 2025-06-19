@@ -4,7 +4,6 @@ import {
   FaCheckCircle
 } from "react-icons/fa";
 import DocumentUpload from "./DocumentUpload";
-import APL02Upload from "./APL02Upload";
 import Confirmation from "./Confirmation";
 
 const AssessmentRegisterForm = () => {
@@ -44,11 +43,7 @@ const AssessmentRegisterForm = () => {
     statement: null,
     apl01: null,
     
-    // Step 4: APL 02
-    apl02: null,
-    supportingDocuments: [],
-    
-    // Step 5: Konfirmasi
+    // Step 4: Konfirmasi
     hasCompletedAssessment: false,
     requestCertificate: false
   });
@@ -63,8 +58,7 @@ const AssessmentRegisterForm = () => {
     familyCard: null,
     photo: null,
     instanceSupport: null,
-    apl01: null,
-    apl02: null
+    apl01: null
   });
   
   // Ambil data instances dari API
@@ -131,27 +125,114 @@ const AssessmentRegisterForm = () => {
     fetchSchemas();
   }, []);
   
-  // Generate dummy assessment dates (sebagai contoh)
+  // Ambil assessment times berdasarkan instance yang dipilih
   useEffect(() => {
-    const generateDates = () => {
-      const dates = [];
-      const currentDate = new Date();
-      
-      for (let i = 1; i <= 5; i++) {
-        const futureDate = new Date();
-        futureDate.setDate(currentDate.getDate() + (i * 7)); // Add weeks
-        dates.push({
-          id: i,
-          date: futureDate.toISOString().split('T')[0]
-        });
+    const fetchAssessmentTimes = async () => {
+      if (!formData.instanceId) {
+        setAssessmentDates([]);
+        return;
       }
-      
-      setAssessmentDates(dates);
+
+      try {
+        setLoading(true);
+        const API_URL = import.meta.env.VITE_API_URL || window.ENV_API_URL || "http://localhost:8000/api";
+        const token = localStorage.getItem('token');
+        
+        const response = await fetch(`${API_URL}/instances/${formData.instanceId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch instance details');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.data && data.data.instance_assessment_times) {
+          // Konversi assessment times ke format yang bisa digunakan
+          const assessmentTimes = data.data.instance_assessment_times.map((time, index) => {
+            // Format datetime untuk display yang readable
+            let displayTime = time.assessment_time;
+            let dateValue = time.assessment_time;
+            
+            try {
+              // Jika format SQL datetime (YYYY-MM-DD HH:MM:SS), convert ke readable
+              if (time.assessment_time.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
+                // Parse waktu sebagai waktu Jakarta dan format untuk display
+                const [datePart, timePart] = time.assessment_time.split(' ');
+                const [year, month, day] = datePart.split('-');
+                const [hour, minute] = timePart.split(':');
+                
+                // Buat date object untuk display
+                const displayDate = new Date();
+                displayDate.setFullYear(parseInt(year), parseInt(month) - 1, parseInt(day));
+                displayDate.setHours(parseInt(hour), parseInt(minute), 0, 0);
+                
+                // Format untuk display dalam bahasa Indonesia
+                const options = { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: false,
+                  weekday: 'long'
+                };
+                displayTime = displayDate.toLocaleDateString('id-ID', options);
+                
+                // Untuk value, gunakan format yang sama dengan backend
+                dateValue = time.assessment_time;
+              }
+            } catch {
+              // Jika gagal convert, gunakan format asli
+              displayTime = time.assessment_time;
+              dateValue = time.assessment_time;
+            }
+            
+            return {
+              id: time.id || index + 1,
+              date: dateValue,
+              displayText: displayTime
+            };
+          });
+          
+          setAssessmentDates(assessmentTimes);
+        } else {
+          setAssessmentDates([]);
+        }
+      } catch (err) {
+        console.error('Error fetching assessment times:', err);
+        setError('Gagal memuat waktu asesmen untuk instansi ini.');
+        setAssessmentDates([]);
+      } finally {
+        setLoading(false);
+      }
     };
     
-    generateDates();
-  }, []);
-  
+    fetchAssessmentTimes();
+  }, [formData.instanceId]);
+
+  // Reset assessment date ketika instance berubah
+  useEffect(() => {
+    if (formData.instanceId) {
+      setFormData(prev => ({
+        ...prev,
+        assessmentDate: "" // Reset pilihan tanggal
+      }));
+      
+      // Clear error untuk assessment date
+      if (formErrors.assessmentDate) {
+        setFormErrors(prev => ({
+          ...prev,
+          assessmentDate: null
+        }));
+      }
+    }
+  }, [formData.instanceId]);
+
   // Ambil data pengguna dari API
   useEffect(() => {
     const fetchUserData = async () => {
@@ -338,48 +419,6 @@ const AssessmentRegisterForm = () => {
     });
   };
   
-  // Handle supporting document file additions
-  const handleSupportingDocumentAdd = (e) => {
-    const files = e.target.files;
-    
-    if (files && files.length > 0) {
-      // Validate each file
-      const newFiles = Array.from(files).filter(file => {
-        // Check size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          setError(`File ${file.name} terlalu besar. Maksimal 5MB`);
-          return false;
-        }
-        
-        // Check type
-        const validTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-        if (!validTypes.includes(file.type)) {
-          setError(`File ${file.name} tidak didukung. Gunakan PDF, JPEG, atau PNG`);
-          return false;
-        }
-        
-        return true;
-      });
-      
-      if (newFiles.length > 0) {
-        setFormData({
-          ...formData,
-          supportingDocuments: [...formData.supportingDocuments, ...newFiles]
-        });
-      }
-    }
-  };
-  
-  // Remove a supporting document
-  const handleRemoveSupportingDocument = (index) => {
-    const updatedDocs = [...formData.supportingDocuments];
-    updatedDocs.splice(index, 1);
-    setFormData({
-      ...formData,
-      supportingDocuments: updatedDocs
-    });
-  };
-  
   // Validation for each step
   const validateStep = (step) => {
     let errors = {};
@@ -418,6 +457,7 @@ const AssessmentRegisterForm = () => {
     
     switch (step) {
       case 1:
+        {
         // Validate Profil & Pendaftaran
         if (!formData.fullName.trim()) {
           errors.fullName = "Nama lengkap wajib diisi";
@@ -473,8 +513,10 @@ const AssessmentRegisterForm = () => {
           isValid = false;
         }
         break;
+        }
         
       case 2:
+        {
         // Validate Skema & Metode
         if (!formData.schemaId) {
           errors.schemaId = "Skema sertifikasi wajib dipilih";
@@ -491,8 +533,10 @@ const AssessmentRegisterForm = () => {
           isValid = false;
         }
         break;
+        }
       
       case 3:
+        {
         // Validate document uploads
         const checkFile = (fieldName, errorMessage) => {
           // Cek di formData dulu
@@ -529,33 +573,16 @@ const AssessmentRegisterForm = () => {
             familyCard: formData.familyCard,
             photo: formData.photo,
             instanceSupport: formData.instanceSupport,
+            apl01: formData.apl01,
           },
           tempFiles,
           errors
         });
         break;
+        }
       
       case 4:
-        // Validate APL 02
-        if (!isValidFile(formData.apl02) && !isValidFile(tempFiles.apl02)) {
-          errors.apl02 = "Dokumen APL 02 wajib diunggah";
-          isValid = false;
-        } else if (isValidFile(tempFiles.apl02) && !isValidFile(formData.apl02)) {
-          // Update formData dengan nilai dari tempFiles
-          setFormData(prev => ({
-            ...prev,
-            apl02: tempFiles.apl02
-          }));
-        }
-        
-        // Debug info
-        console.log("Validasi APL 02:", {
-          apl02: formData.apl02,
-          errors: errors
-        });
-        break;
-      
-      case 5:
+        {
         // Validate confirmations
         if (!formData.hasCompletedAssessment) {
           errors.hasCompletedAssessment = "Anda harus menyetujui pernyataan ini untuk melanjutkan";
@@ -567,6 +594,7 @@ const AssessmentRegisterForm = () => {
           isValid = false;
         }
         break;
+        }
     }
     
     setFormErrors(errors);
@@ -593,7 +621,7 @@ const AssessmentRegisterForm = () => {
         case 'apl01':
           endpoint = `/assessee/template/download/apl01`;
           break;
-        case 'apl02':
+        case 'apl02': {
           // Jika apl02Type diberikan, gunakan itu
           const type = apl02Type || (formData.certificationMethod === 'observasi' ? 'observation' : 
                                     formData.certificationMethod === 'portofolio' ? 'portofolio' : '');
@@ -604,6 +632,7 @@ const AssessmentRegisterForm = () => {
           
           endpoint = `/assessee/template/download/apl02?type=${type}`;
           break;
+        }
         case 'apl02_observasi':
           endpoint = `/assessee/template/download/apl02?type=observation`;
           break;
@@ -678,7 +707,7 @@ const AssessmentRegisterForm = () => {
     }
     
     if (validateStep(currentStep)) {
-      if (currentStep === 5) {
+      if (currentStep === 4) {
         // Jika ini adalah langkah terakhir, lakukan submit form
         handleSubmit();
       } else {
@@ -763,19 +792,6 @@ const AssessmentRegisterForm = () => {
       if (formData.apl01) {
         const file = isMockFile(formData.apl01) ? createDummyFile(formData.apl01) : formData.apl01;
         formDataToSend.append('apl01', file);
-      }
-      if (formData.apl02) {
-        const file = isMockFile(formData.apl02) ? createDummyFile(formData.apl02) : formData.apl02;
-        formDataToSend.append('apl02', file);
-      }
-      
-      // 4. Dokumen pendukung (jika ada)
-      if (formData.supportingDocuments && formData.supportingDocuments.length > 0) {
-        // Kirim sebagai array files
-        formData.supportingDocuments.forEach((doc, index) => {
-          const file = isMockFile(doc) ? createDummyFile(doc) : doc;
-          formDataToSend.append(`supporting_documents[${index}]`, file);
-        });
       }
       
       // Log data yang akan dikirim
@@ -1073,25 +1089,30 @@ const AssessmentRegisterForm = () => {
                 <label htmlFor="assessmentDate" className="block text-sm font-medium text-gray-700">
                   Pilih Tanggal Pelaksanaan <span className="text-red-500">*</span>
                 </label>
-                <select
-                  id="assessmentDate"
-                  name="assessmentDate"
-                  value={formData.assessmentDate}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md ${formErrors.assessmentDate ? 'border-red-500' : 'border-gray-300'}`}
-                >
-                  <option value="">Pilih Tanggal Pelaksanaan</option>
-                  {assessmentDates.map(date => (
-                    <option key={date.id} value={date.date}>
-                      {new Date(date.date).toLocaleDateString('id-ID', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </option>
-                  ))}
-                </select>
+                {!formData.instanceId ? (
+                  <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500">
+                    Pilih instansi terlebih dahulu
+                  </div>
+                ) : assessmentDates.length === 0 ? (
+                  <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-yellow-50 text-yellow-700">
+                    Tidak ada jadwal asesmen tersedia untuk instansi ini
+                  </div>
+                ) : (
+                  <select
+                    id="assessmentDate"
+                    name="assessmentDate"
+                    value={formData.assessmentDate}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md ${formErrors.assessmentDate ? 'border-red-500' : 'border-gray-300'}`}
+                  >
+                    <option value="">Pilih Tanggal Pelaksanaan</option>
+                    {assessmentDates.map(date => (
+                      <option key={date.id} value={date.date}>
+                        {date.displayText}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 {formErrors.assessmentDate && (
                   <p className="text-sm text-red-500">{formErrors.assessmentDate}</p>
                 )}
@@ -1101,6 +1122,7 @@ const AssessmentRegisterForm = () => {
         );
       
       case 3:
+        {
         // Integrasikan komponen DocumentUpload
         return (
           <div>
@@ -1112,23 +1134,10 @@ const AssessmentRegisterForm = () => {
             />
           </div>
         );
-      
-      case 4:
-        // APL 02 Upload component
-        return (
-          <div>
-            <APL02Upload
-              formData={formData}
-              formErrors={formErrors}
-              handleFileChange={handleFileChangeWithTempStorage}
-              handleDownloadTemplate={handleDownloadTemplate}
-              handleSupportingDocumentAdd={handleSupportingDocumentAdd}
-              handleRemoveSupportingDocument={handleRemoveSupportingDocument}
-            />
-          </div>
-        );
+        }
         
-      case 5:
+      case 4:
+        {
         // Confirmation component
         return (
           <div>
@@ -1139,6 +1148,7 @@ const AssessmentRegisterForm = () => {
             />
           </div>
         );
+        }
       
       default:
         return null;
@@ -1151,8 +1161,7 @@ const AssessmentRegisterForm = () => {
       { number: 1, title: "Profil & Pendaftaran" },
       { number: 2, title: "Skema & Metode" },
       { number: 3, title: "Upload Dokumen" },
-      { number: 4, title: "APL 02" },
-      { number: 5, title: "Konfirmasi" }
+      { number: 4, title: "Konfirmasi" }
     ];
     
     return (
@@ -1259,7 +1268,7 @@ const AssessmentRegisterForm = () => {
           </div>
         )}
         
-        {loading && currentStep === 5 && (
+        {loading && currentStep === 4 && (
           <div className="mb-6 p-4 bg-blue-100 text-blue-700 rounded-md flex items-center">
             <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -1303,7 +1312,7 @@ const AssessmentRegisterForm = () => {
                 </svg>
                 Memproses...
               </>
-            ) : currentStep === 5 ? (
+            ) : currentStep === 4 ? (
               'Kirim Pendaftaran'
             ) : (
               'Selanjutnya'

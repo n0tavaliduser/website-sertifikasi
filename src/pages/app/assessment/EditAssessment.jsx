@@ -8,7 +8,6 @@ import {
   Card, 
   CardContent, 
   CardDescription, 
-  CardFooter, 
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
@@ -192,14 +191,44 @@ const EditAssessment = () => {
       setSaving(true);
       const token = localStorage.getItem('token');
       
+      // Create FormData for file uploads
+      const formDataToSend = new FormData();
+      
+      // Add all form fields to FormData
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== null && formData[key] !== undefined) {
+          // Handle file objects
+          if (formData[key] instanceof File) {
+            formDataToSend.append(key, formData[key]);
+          }
+          // Handle arrays (supporting documents)
+          else if (Array.isArray(formData[key])) {
+            formData[key].forEach((item, index) => {
+              if (item instanceof File) {
+                formDataToSend.append(`${key}[${index}]`, item);
+              } else {
+                formDataToSend.append(`${key}[${index}]`, item);
+              }
+            });
+          }
+          // Handle regular form fields
+          else {
+            formDataToSend.append(key, formData[key]);
+          }
+        }
+      });
+      
+      // Add _method for Laravel PUT request
+      formDataToSend.append('_method', 'PUT');
+      
       const response = await fetch(`${API_URL}/assessee/${id}`, {
-        method: 'PUT',
+        method: 'POST', // Use POST with _method=PUT for file uploads
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
           'Accept': 'application/json'
+          // Don't set Content-Type, let browser set it with boundary for multipart/form-data
         },
-        body: JSON.stringify(formData)
+        body: formDataToSend
       });
       
       if (!response.ok) {
@@ -314,7 +343,7 @@ const EditAssessment = () => {
         case 'apl01':
           endpoint = `/assessee/template/download/apl01`;
           break;
-        case 'apl02':
+        case 'apl02': {
           // Default APL02 sesuai dengan metode yang dipilih
           const method = formData.method ? formData.method.toLowerCase() : '';
           let type = '';
@@ -330,6 +359,7 @@ const EditAssessment = () => {
           
           endpoint = `/assessee/template/download/apl02?type=${type}`;
           break;
+        }
         default:
           throw new Error('Jenis template tidak valid');
       }
@@ -370,13 +400,10 @@ const EditAssessment = () => {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       
-      toast({
-        title: "Berhasil",
-        description: `Template ${templateType.toUpperCase()} berhasil diunduh.`,
-      });
+      alert("Template " + templateType.toUpperCase() + " berhasil diunduh.");
     } catch (error) {
       console.error(`Error downloading ${templateType} template:`, error);
-      toast({
+      alert({
         title: "Gagal",
         description: error.message || `Gagal mengunduh template ${templateType.toUpperCase()}.`,
         variant: "destructive",
@@ -384,13 +411,6 @@ const EditAssessment = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Format date for display
-  const formatDate = (dateString) => {
-    if (!dateString) return '-';
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('id-ID', options);
   };
 
   // Render status badge
@@ -795,20 +815,36 @@ const EditAssessment = () => {
                         APL 02 adalah dokumen asesmen mandiri di mana peserta menilai kemampuan dirinya terhadap unit kompetensi yang akan diujikan.
                       </p>
                       
+                      {/* Tampilkan pesan jika status belum approved */}
+                      {assessment.assessment_status !== 'approved' && (
+                        <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200">
+                          <p className="text-sm text-yellow-800">
+                            <strong>Catatan:</strong> Upload APL02 hanya tersedia setelah pendaftaran disetujui oleh admin.
+                          </p>
+                        </div>
+                      )}
+                      
                       <div className="space-y-2">
                         <div className="mt-1 flex items-center space-x-3">
                           <button
                             type="button"
                             onClick={(e) => handleDownloadTemplate(e, 'apl02')}
-                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none flex items-center"
-                            disabled={!formData.schema_id || !formData.method}
+                            className={`px-4 py-2 rounded-md focus:outline-none flex items-center ${
+                              !formData.schema_id || !formData.method || assessment.assessment_status !== 'approved'
+                                ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                                : 'bg-green-600 text-white hover:bg-green-700'
+                            }`}
+                            disabled={!formData.schema_id || !formData.method || assessment.assessment_status !== 'approved'}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                               <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
                             </svg>
                             Download Template
                           </button>
-                          {!formData.method && (
+                          {assessment.assessment_status !== 'approved' && (
+                            <span className="text-xs text-amber-600">Menunggu persetujuan admin</span>
+                          )}
+                          {assessment.assessment_status === 'approved' && !formData.method && (
                             <span className="text-xs text-amber-600">Pilih metode asesmen terlebih dahulu</span>
                           )}
                         </div>
@@ -830,11 +866,17 @@ const EditAssessment = () => {
                                 }
                               })}
                               accept=".pdf,.jpg,.jpeg,.png"
+                              disabled={assessment.assessment_status !== 'approved'}
                             />
                             <button
                               type="button"
-                              onClick={() => document.getElementById('apl02').click()}
-                              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+                              onClick={() => assessment.assessment_status === 'approved' && document.getElementById('apl02').click()}
+                              className={`px-4 py-2 rounded-md focus:outline-none ${
+                                assessment.assessment_status !== 'approved'
+                                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                              }`}
+                              disabled={assessment.assessment_status !== 'approved'}
                             >
                               {formData.apl02 ? 'Ganti File' : 'Upload File'}
                             </button>
@@ -847,7 +889,10 @@ const EditAssessment = () => {
                             )}
                           </div>
                           <p className="text-xs text-gray-500 mt-1">
-                            Upload file APL 02 yang sudah diisi dan ditandatangani (PDF)
+                            {assessment.assessment_status === 'approved' 
+                              ? 'Upload file APL 02 yang sudah diisi dan ditandatangani (PDF)'
+                              : 'Upload APL02 akan tersedia setelah pendaftaran disetujui'
+                            }
                           </p>
                         </div>
                       </div>
