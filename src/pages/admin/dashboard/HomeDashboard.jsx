@@ -47,14 +47,7 @@ const StatCard = ({ title, value, icon, color, change }) => {
 /**
  * Komponen Skema Sertifikasi Teratas
  */
-const TopSchemes = () => {
-  const schemes = [
-    { id: 1, name: 'Junior Web Developer', participants: 125, completion: 85 },
-    { id: 2, name: 'Digital Marketing Specialist', participants: 98, completion: 72 },
-    { id: 3, name: 'Network Administrator', participants: 76, completion: 64 },
-    { id: 4, name: 'System Analyst', participants: 52, completion: 56 }
-  ];
-
+const TopSchemes = ({ schemaData }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
       <div className="flex items-center justify-between mb-4">
@@ -62,19 +55,19 @@ const TopSchemes = () => {
         <button className="text-blue-500 text-sm hover:text-blue-700">Lihat Semua</button>
       </div>
       <div className="space-y-4">
-        {schemes.map((scheme) => (
-          <div key={scheme.id} className="flex flex-col">
+        {schemaData.slice(0, 4).map((scheme) => (
+          <div key={scheme.schema_id} className="flex flex-col">
             <div className="flex justify-between mb-1">
-              <span className="text-sm font-medium text-gray-700">{scheme.name}</span>
-              <span className="text-sm text-gray-500">{scheme.completion}%</span>
+              <span className="text-sm font-medium text-gray-700">{scheme.schema_name}</span>
+              <span className="text-sm text-gray-500">{scheme.completion_rate}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
                 className="bg-blue-600 h-2 rounded-full" 
-                style={{ width: `${scheme.completion}%` }}
+                style={{ width: `${scheme.completion_rate}%` }}
               ></div>
             </div>
-            <span className="text-xs text-gray-500 mt-1">{scheme.participants} Peserta</span>
+            <span className="text-xs text-gray-500 mt-1">{scheme.total_participants} Peserta</span>
           </div>
         ))}
       </div>
@@ -85,34 +78,24 @@ const TopSchemes = () => {
 /**
  * Komponen Jadwal Mendatang
  */
-const UpcomingSchedule = () => {
-  const events = [
-    { id: 1, title: 'Sesi Asesmen Junior Web Developer', date: '15 Nov 2023', time: '09:00 - 12:00' },
-    { id: 2, title: 'Workshop Persiapan Sertifikasi', date: '18 Nov 2023', time: '13:00 - 16:00' },
-    { id: 3, title: 'Pembahasan Materi Uji Kompetensi', date: '22 Nov 2023', time: '10:00 - 12:00' }
-  ];
-
+const UpcomingSchedule = ({ monthlyData }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-800">Jadwal Mendatang</h2>
-        <button className="flex items-center text-blue-500 text-sm hover:text-blue-700">
-          <FiPlus className="mr-1" size={14} />
-          Tambah
-        </button>
       </div>
       <div className="space-y-4">
-        {events.map((event) => (
-          <div key={event.id} className="flex items-start">
+        {monthlyData.slice(0, 3).map((event, index) => (
+          <div key={index} className="flex items-start">
             <div className="flex-shrink-0 p-2 rounded-lg bg-blue-100 text-blue-600 mr-4">
               <FiCalendar />
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-800">{event.title}</h3>
+              <h3 className="text-sm font-medium text-gray-800">{event.schema_name}</h3>
               <div className="flex items-center mt-1">
-                <span className="text-xs text-gray-500">{event.date}</span>
+                <span className="text-xs text-gray-500">{event.date_range}</span>
                 <span className="mx-2 text-gray-300">|</span>
-                <span className="text-xs text-gray-500">{event.time}</span>
+                <span className="text-xs text-gray-500">{event.total_participants} Peserta</span>
               </div>
             </div>
           </div>
@@ -265,6 +248,8 @@ export const HomeDashboard = () => {
     requested: 0,
     approved: 0,
     completed: 0,
+    monthlyData: [],
+    schemaData: [],
     loading: true,
     error: null
   });
@@ -276,27 +261,62 @@ export const HomeDashboard = () => {
   const fetchStatistics = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/assessee/statistic-detail`, {
+      
+      // Mengambil data statistik detail
+      const detailResponse = await fetch(`${API_URL}/statistics/detail`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
         }
       });
       
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
+      if (!detailResponse.ok) {
+        throw new Error(`Error: ${detailResponse.status}`);
       }
       
-      const result = await response.json();
+      const detailResult = await detailResponse.json();
       
-      if (result.success && result.data) {
+      // Mengambil data statistik skema
+      const schemaResponse = await fetch(`${API_URL}/statistics/schema`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (!schemaResponse.ok) {
+        throw new Error(`Error: ${schemaResponse.status}`);
+      }
+      
+      const schemaResult = await schemaResponse.json();
+      
+      // Mengambil data statistik bulanan
+      const monthlyResponse = await fetch(`${API_URL}/statistics/monthly`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (!monthlyResponse.ok) {
+        throw new Error(`Error: ${monthlyResponse.status}`);
+      }
+      
+      const monthlyResult = await monthlyResponse.json();
+      
+      if (detailResult.success && detailResult.data) {
+        const yearlyStats = detailResult.data.yearly_statistics;
+        const monthlyDetails = detailResult.data.monthly_details;
+        
         setStatistics({
-          totalAssessees: result.data.total_assessees || 0,
-          totalByInstance: result.data.total_assessees_by_instance || 0,
-          totalBySchema: result.data.total_assessees_by_schema || 0,
-          requested: result.data.total_requested_assessees || 0,
-          approved: result.data.total_approved_assessees || 0,
-          completed: result.data.total_completed_assessees || 0,
+          totalAssessees: yearlyStats.total_assessees || 0,
+          totalByInstance: yearlyStats.total_by_instance || 0,
+          totalBySchema: yearlyStats.total_by_schema || 0,
+          requested: yearlyStats.status_counts?.pending || 0,
+          approved: yearlyStats.status_counts?.approved || 0,
+          completed: yearlyStats.status_counts?.completed || 0,
+          monthlyData: monthlyDetails || [],
+          schemaData: schemaResult.data || [],
           loading: false,
           error: null
         });
@@ -304,7 +324,7 @@ export const HomeDashboard = () => {
         setStatistics(prev => ({
           ...prev,
           loading: false,
-          error: result.message || "Gagal mendapatkan data statistik"
+          error: detailResult.message || "Gagal mendapatkan data statistik"
         }));
       }
     } catch (err) {
@@ -347,29 +367,25 @@ export const HomeDashboard = () => {
               title="Total Peserta" 
               value={statistics.totalAssessees.toString()} 
               icon={<FiUsers size={24} />} 
-              color="blue" 
-              change={{ type: 'up', value: 12 }}
+              color="blue"
             />
             <StatCard 
               title="Skema Aktif" 
               value={statistics.totalBySchema.toString()} 
               icon={<FiList size={24} />} 
-              color="green" 
-              change={{ type: 'up', value: 4 }}
+              color="green"
             />
             <StatCard 
               title="Sertifikat Terbit" 
               value={statistics.completed.toString()} 
               icon={<FiFileText size={24} />} 
-              color="purple" 
-              change={{ type: 'up', value: 8 }}
+              color="purple"
             />
             <StatCard 
               title="Asesmen Selesai" 
               value={statistics.approved.toString()} 
               icon={<FiCheckSquare size={24} />} 
-              color="orange" 
-              change={{ type: 'down', value: 2 }}
+              color="orange"
             />
           </div>
           
@@ -392,6 +408,12 @@ export const HomeDashboard = () => {
               totalBySchema={statistics.totalBySchema} 
               totalByInstance={statistics.totalByInstance} 
             />
+          </div>
+
+          {/* Skema dan Jadwal */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <TopSchemes schemaData={statistics.schemaData || []} />
+            <UpcomingSchedule monthlyData={statistics.monthlyData || []} />
           </div>
         </>
       )}
